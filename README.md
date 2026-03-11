@@ -2,9 +2,9 @@
 ## 📂 Project Structure
 The backend follows a modular architecture:
 src/
-├── controllers/ # Handle HTTP requests and responses
-├── routes/ # Define API routes
-├── middleware/ # Custom middleware (auth, validation, etc.)
-├── models/ # Database models / schemas
-├── services/ # Business logic layer
-└── config/ # Configuration files (DB, env, etc.)
+├── config/          # Configuration files (database, environment variables, constants)
+├── controllers/     # Route handlers; processes incoming requests and sends responses
+├── middleware/      # Functions that run during the request-response cycle (Auth, Logging)
+├── models/          # Data structures, database schemas, and ORM definitions
+├── routes/          # API endpoint definitions; maps URLs to controller functions
+└── services/        # The "Brain" of the app; contains core business logic and DB queries
