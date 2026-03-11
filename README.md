@@ -1,10 +1,11 @@
 # School-Inventory-Management-
 ## 📂 Project Structure
 The backend follows a modular architecture:
+```text
 src/
-├── config/          # Configuration files (database, environment variables, constants)
-├── controllers/     # Route handlers; processes incoming requests and sends responses
-├── middleware/      # Functions that run during the request-response cycle (Auth, Logging)
-├── models/          # Data structures, database schemas, and ORM definitions
-├── routes/          # API endpoint definitions; maps URLs to controller functions
-└── services/        # The "Brain" of the app; contains core business logic and DB queries
+├── config/          # Configuration files (database connections, environment variables)
+├── controllers/     # Request handlers (processes input, calls services, sends responses)
+├── middleware/      # Custom functions (authentication, error handling, validation)
+├── models/          # Database schemas and data definitions (SQL/NoSQL)
+├── routes/          # API endpoint definitions and routing logic
+└── services/        # Business logic layer (complex calculations, external API calls)
