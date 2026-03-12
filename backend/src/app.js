@@ -4,6 +4,8 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const errorHandler = require("./middleware/errorHandler");
+const equipmentRoutes = require('./routes/equipmentRoutes');
+
 
 const app = express();
 
@@ -13,6 +15,8 @@ app.use(cookieParser());
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/admin", adminRoutes);
+
+app.use('/api', equipmentRoutes); // Така ще стане /api/equipment
 
 app.use(errorHandler);
 
