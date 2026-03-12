@@ -1,6 +1,8 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const pool = require("../config/db");
+const crypto = require("crypto");
+const db = require("../../models");
+const { User, RefreshToken } = db;
 
 const SALT_ROUNDS = 10;
 
@@ -12,23 +14,32 @@ const isValidUsername = (username) => {
     return /^[a-zA-Z0-9_]+$/.test(username);
 };
 
-const registerUser = async ({ name, username, email, password, role }) => {
-    if (!name || !username || !email || !password) {
-        const error = new Error("Name, username, email and password are required");
+const generateAccessToken = (user) => {
+    return jwt.sign(
+        {
+            userId: user.id,
+            role: user.role,
+            email: user.email,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m" }
+    );
+};
+
+const generateRefreshToken = () => {
+    return crypto.randomBytes(64).toString('hex');
+};
+
+const registerUser = async ({ username, email, password, role }) => {
+    if (!username || !email || !password) {
+        const error = new Error("Username, email and password are required");
         error.statusCode = 400;
         throw error;
     }
 
-    const trimmedName = name.trim();
     const trimmedUsername = username.trim();
     const normalizedEmail = email.trim().toLowerCase();
-    const finalRole = role ? role.trim().toLowerCase() : "user";
-
-    if (trimmedName.length < 2) {
-        const error = new Error("Name must be at least 2 characters long");
-        error.statusCode = 400;
-        throw error;
-    }
+    const finalRole = role ? role.trim().toLowerCase() : "student";
 
     if (!isValidUsername(trimmedUsername)) {
         const error = new Error("Username can contain only letters, numbers and underscore");
@@ -48,33 +59,28 @@ const registerUser = async ({ name, username, email, password, role }) => {
         throw error;
     }
 
-    if (!["user", "admin"].includes(finalRole)) {
+    if (!["student", "teacher", "admin"].includes(finalRole)) {
         const error = new Error("Invalid role");
         error.statusCode = 400;
         throw error;
     }
 
-    const existingUserQuery = `
-        SELECT id, email, username
-        FROM users
-        WHERE email = $1 OR username = $2
-            LIMIT 1
-    `;
+    // Check if user already exists
+    const existingUser = await User.findOne({
+        where: {
+            [db.Sequelize.Op.or]: [
+                { email: normalizedEmail },
+                { username: trimmedUsername }
+            ]
+        }
+    });
 
-    const existingUserResult = await pool.query(existingUserQuery, [
-        normalizedEmail,
-        trimmedUsername,
-    ]);
-
-    if (existingUserResult.rows.length > 0) {
-        const existingUser = existingUserResult.rows[0];
-
+    if (existingUser) {
         if (existingUser.email === normalizedEmail) {
             const error = new Error("Email already exists");
             error.statusCode = 409;
             throw error;
         }
-
         if (existingUser.username === trimmedUsername) {
             const error = new Error("Username already exists");
             error.statusCode = 409;
@@ -84,25 +90,15 @@ const registerUser = async ({ name, username, email, password, role }) => {
 
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-    const insertUserQuery = `
-        INSERT INTO users (name, username, email, password, role)
-        VALUES ($1, $2, $3, $4, $5)
-            RETURNING id, name, username, email, role, created_at
-    `;
-
-    const insertResult = await pool.query(insertUserQuery, [
-        trimmedName,
-        trimmedUsername,
-        normalizedEmail,
-        hashedPassword,
-        finalRole,
-    ]);
-
-    const user = insertResult.rows[0];
+    const user = await User.create({
+        username: trimmedUsername,
+        email: normalizedEmail,
+        password_hash: hashedPassword,
+        role: finalRole,
+    });
 
     return {
         id: user.id,
-        name: user.name,
         username: user.username,
         email: user.email,
         role: user.role,
@@ -117,54 +113,35 @@ const loginUser = async ({ email, username, password }) => {
         throw error;
     }
 
-    let userQuery = "";
-    let queryParams = [];
+    let whereClause = {};
 
     if (email) {
         const normalizedEmail = email.trim().toLowerCase();
-
         if (!isValidEmail(normalizedEmail)) {
             const error = new Error("Invalid email format");
             error.statusCode = 400;
             throw error;
         }
-
-        userQuery = `
-            SELECT id, name, username, email, password, role, created_at
-            FROM users
-            WHERE email = $1
-                LIMIT 1
-        `;
-        queryParams = [normalizedEmail];
+        whereClause.email = normalizedEmail;
     } else {
         const trimmedUsername = username.trim();
-
         if (!isValidUsername(trimmedUsername)) {
             const error = new Error("Invalid username format");
             error.statusCode = 400;
             throw error;
         }
-
-        userQuery = `
-            SELECT id, name, username, email, password, role, created_at
-            FROM users
-            WHERE username = $1
-                LIMIT 1
-        `;
-        queryParams = [trimmedUsername];
+        whereClause.username = trimmedUsername;
     }
 
-    const result = await pool.query(userQuery, queryParams);
+    const user = await User.findOne({ where: whereClause });
 
-    if (result.rows.length === 0) {
+    if (!user) {
         const error = new Error("Invalid credentials");
         error.statusCode = 401;
         throw error;
     }
 
-    const user = result.rows[0];
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
     if (!passwordMatch) {
         const error = new Error("Invalid credentials");
@@ -172,21 +149,26 @@ const loginUser = async ({ email, username, password }) => {
         throw error;
     }
 
-    const token = jwt.sign(
-        {
-            userId: user.id,
-            role: user.role,
-            email: user.email,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" }
-    );
+    // Generate tokens
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken();
+
+    // Calculate expiration (7 days from now)
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7);
+
+    // Store refresh token in database
+    await RefreshToken.create({
+        token: refreshToken,
+        user_id: user.id,
+        expires_at: expiresAt
+    });
 
     return {
-        token,
+        accessToken,
+        refreshToken,
         user: {
             id: user.id,
-            name: user.name,
             username: user.username,
             email: user.email,
             role: user.role,
@@ -195,40 +177,92 @@ const loginUser = async ({ email, username, password }) => {
     };
 };
 
-const logoutUser = async (token) => {
-    if (!token) {
-        const error = new Error("Access token is missing");
+const refreshAccessToken = async (refreshToken) => {
+    if (!refreshToken) {
+        const error = new Error("Refresh token is required");
         error.statusCode = 401;
         throw error;
     }
 
-    let decoded;
+    // Find refresh token in database
+    const tokenRecord = await RefreshToken.findOne({
+        where: { token: refreshToken },
+        include: [{
+            model: User,
+            as: 'user'
+        }]
+    });
 
-    try {
-        decoded = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-        const error = new Error("Invalid or expired token");
+    if (!tokenRecord) {
+        const error = new Error("Invalid refresh token");
         error.statusCode = 401;
         throw error;
     }
 
-    const expiresAt = new Date(decoded.exp * 1000);
+    // Check if token is expired
+    if (tokenRecord.isExpired()) {
+        // Delete expired token
+        await tokenRecord.destroy();
+        const error = new Error("Refresh token has expired");
+        error.statusCode = 401;
+        throw error;
+    }
 
-    const insertBlacklistQuery = `
-    INSERT INTO token_blacklist (token, expires_at)
-    VALUES ($1, $2)
-    ON CONFLICT (token) DO NOTHING
-  `;
+    // Generate new access token
+    const accessToken = generateAccessToken(tokenRecord.user);
 
-    await pool.query(insertBlacklistQuery, [token, expiresAt]);
+    return {
+        accessToken,
+        user: {
+            id: tokenRecord.user.id,
+            username: tokenRecord.user.username,
+            email: tokenRecord.user.email,
+            role: tokenRecord.user.role,
+        }
+    };
+};
+
+const logoutUser = async (refreshToken) => {
+    if (!refreshToken) {
+        const error = new Error("Refresh token is required");
+        error.statusCode = 401;
+        throw error;
+    }
+
+    // Delete the refresh token from database
+    const deleted = await RefreshToken.destroy({
+        where: { token: refreshToken }
+    });
+
+    if (deleted === 0) {
+        const error = new Error("Invalid refresh token");
+        error.statusCode = 401;
+        throw error;
+    }
 
     return {
         message: "Logout successful",
     };
 };
 
+// Cleanup expired tokens (called by cron job)
+const cleanupExpiredTokens = async () => {
+    const deleted = await RefreshToken.destroy({
+        where: {
+            expires_at: {
+                [db.Sequelize.Op.lt]: new Date()
+            }
+        }
+    });
+
+    console.log(`Cleaned up ${deleted} expired refresh tokens`);
+    return deleted;
+};
+
 module.exports = {
     registerUser,
     loginUser,
+    refreshAccessToken,
     logoutUser,
+    cleanupExpiredTokens,
 };
