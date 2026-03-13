@@ -6,17 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="98e050de-4084-4ab4-b303-e143b3da6b6e" name="Changes" comment="working auth">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.env" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/init.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/init.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/node_modules/.package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/server.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/models/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/authController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/authController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/jobs/tokenCleanup.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/jobs/tokenCleanup.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/routes/authRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/authRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/services/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/services/authService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,6 +23,7 @@
       <list>
         <option value="Dockerfile" />
         <option value="JavaScript File" />
+        <option value="HTTP Request" />
       </list>
     </option>
   </component>
@@ -52,7 +44,7 @@
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/Tech-Academy-Gus-Fring/School-Inventory-Management-System.git",
-    "accountId": "4e316143-bf0e-412e-83ed-c3d27e941458"
+    "accountId": "5bc1c6df-ada9-4a9c-8850-f51e352c8ee5"
   }
 }]]></component>
   <component name="HttpClientOnboardingState">{
@@ -66,6 +58,9 @@
   &quot;associatedIndex&quot;: 3
 }</component>
   <component name="ProjectId" id="3AoPeXEVWgnLQZZWL7ELIP8Nsog" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -73,6 +68,9 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Docker.backend: Compose Deployment.executor": "Run",
+    "HTTP Request.All in test_equipment.executor": "Run",
+    "HTTP Request.test_equipment | Test Get Existing Equipment.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Node.js.app.js.executor": "Run",
     "Node.js.authService.js.executor": "Run",
@@ -85,7 +83,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "BE-005",
+    "git-widget-placeholder": "BE-009",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "node.js.detected.package.eslint": "true",
@@ -110,31 +108,54 @@
       <recent name="C:\Users\zdrav\WebstormProjects\School-Inventory-Management-System\backend" />
     </key>
   </component>
+  <component name="RunDashboard">
+    <option name="configurationStatuses">
+      <map>
+        <entry key="HttpClient.HttpRequestRunConfigurationType">
+          <value>
+            <map>
+              <entry key="All in test_equipment" value="STOPPED" />
+              <entry key="test_equipment | Test Get Existing Equipment" value="STOPPED" />
+            </map>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="RunManager" selected="Node.js.server.js">
-    <configuration name="init.sql" type="DatabaseScript" editBeforeRun="true" temporary="true" nameIsGenerated="true">
-      <script-file value="$PROJECT_DIR$/backend/init.sql" />
-      <script-mode>FILE</script-mode>
+    <configuration name="All in test_equipment" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/test_equipment.http">
+      <method v="2" />
+    </configuration>
+    <configuration name="test_equipment | Test Get Existing Equipment" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_equipment.http" executionIdentifier="Test Get Existing Equipment" runType="Run single request">
       <method v="2" />
     </configuration>
     <configuration name="app.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/backend/src/app.js" working-dir="$PROJECT_DIR$/backend/src">
       <method v="2" />
     </configuration>
-    <configuration name="authService.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/backend/src/services/authService.js" working-dir="$PROJECT_DIR$/backend/src/services">
-      <method v="2" />
-    </configuration>
     <configuration name="server.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/backend/server.js" working-dir="$PROJECT_DIR$/backend">
       <method v="2" />
     </configuration>
-    <configuration name="userRoutes.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/backend/src/routes/userRoutes.js" working-dir="$PROJECT_DIR$/backend/src/routes">
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="backend: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="backend/docker-compose.yml" />
+        </settings>
+      </deployment>
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Node.js.server.js" />
+        <item itemvalue="HTTP Request.test_equipment | Test Get Existing Equipment" />
+        <item itemvalue="HTTP Request.All in test_equipment" />
+        <item itemvalue="Docker.backend: Compose Deployment" />
         <item itemvalue="Node.js.app.js" />
-        <item itemvalue="Node.js.authService.js" />
-        <item itemvalue="Node.js.userRoutes.js" />
-        <item itemvalue="Database Script.init.sql" />
       </list>
     </recent_temporary>
   </component>
@@ -154,6 +175,7 @@
       <updated>1773256045985</updated>
       <workItem from="1773256047194" duration="7904000" />
       <workItem from="1773308473548" duration="5833000" />
+      <workItem from="1773335835721" duration="3539000" />
     </task>
     <task id="LOCAL-00001" summary="working auth">
       <option name="closed" value="true" />
