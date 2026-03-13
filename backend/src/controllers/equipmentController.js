@@ -36,7 +36,7 @@ const updateStatus = async (req, res) => {
         const {status} = req.body;
 
         // Acceptance Criteria: Only valid statuses allowed
-        const validStatuses = ['available', 'checked out', 'under repair', 'retired'];
+        const validStatuses = ['available', 'checked_out', 'under_repair', 'retired'];
 
         if (!validStatuses.includes(status)) {
             return res.status(400).json({

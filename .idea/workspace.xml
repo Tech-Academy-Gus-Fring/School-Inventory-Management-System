@@ -6,10 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="98e050de-4084-4ab4-b303-e143b3da6b6e" name="Changes" comment="working auth">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/controllers/equipmentController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/equipmentController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/routes/equipmentRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/equipmentRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/services/equipmentService.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/services/equipmentService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/test_status.http" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test_status.http" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,7 +72,12 @@
     "HTTP Request.All in test_equipment.executor": "Run",
     "HTTP Request.All in test_status.executor": "Run",
     "HTTP Request.test_equipment | Test Get Existing Equipment.executor": "Run",
+    "HTTP Request.test_status | Step 1: Check Current Status.executor": "Run",
+    "HTTP Request.test_status | Step 2: Update the Status.executor": "Run",
+    "HTTP Request.test_status | Step 3: Verify the Change.executor": "Run",
     "HTTP Request.test_status | Test 1: Successful Status Update.executor": "Run",
+    "HTTP Request.test_status | Test 3: Get All Equipment (Full List).executor": "Run",
+    "HTTP Request.test_status | Test 3:.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Node.js.app.js.executor": "Run",
     "Node.js.authService.js.executor": "Run",
@@ -119,8 +122,9 @@
           <value>
             <map>
               <entry key="All in test_status" value="STOPPED" />
-              <entry key="test_equipment | Test Get Existing Equipment" value="STOPPED" />
-              <entry key="test_status | Test 1: Successful Status Update" value="STOPPED" />
+              <entry key="test_status | Step 1: Check Current Status" value="STOPPED" />
+              <entry key="test_status | Step 2: Update the Status" value="STOPPED" />
+              <entry key="test_status | Step 3: Verify the Change" value="STOPPED" />
             </map>
           </value>
         </entry>
@@ -131,10 +135,13 @@
     <configuration name="All in test_status" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/backend/test_status.http">
       <method v="2" />
     </configuration>
-    <configuration name="test_equipment | Test Get Existing Equipment" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_equipment.http" executionIdentifier="Test Get Existing Equipment" runType="Run single request">
+    <configuration name="test_status | Step 1: Check Current Status" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/backend/test_status.http" executionIdentifier="Step 1: Check Current Status" runType="Run single request">
       <method v="2" />
     </configuration>
-    <configuration name="test_status | Test 1: Successful Status Update" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/backend/test_status.http" executionIdentifier="Test 1: Successful Status Update" runType="Run single request">
+    <configuration name="test_status | Step 2: Update the Status" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/backend/test_status.http" executionIdentifier="Step 2: Update the Status" index="2" runType="Run single request">
+      <method v="2" />
+    </configuration>
+    <configuration name="test_status | Step 3: Verify the Change" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/backend/test_status.http" executionIdentifier="Step 3: Verify the Change" index="3" runType="Run single request">
       <method v="2" />
     </configuration>
     <configuration name="server.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/backend/server.js" working-dir="$PROJECT_DIR$/backend">
@@ -146,21 +153,13 @@
       </deployment>
       <method v="2" />
     </configuration>
-    <configuration name="backend: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
-      <deployment type="docker-compose.yml">
-        <settings>
-          <option name="sourceFilePath" value="backend/docker-compose.yml" />
-        </settings>
-      </deployment>
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="HTTP Request.All in test_status" />
-        <item itemvalue="HTTP Request.test_status | Test 1: Successful Status Update" />
+        <item itemvalue="HTTP Request.test_status | Step 3: Verify the Change" />
+        <item itemvalue="HTTP Request.test_status | Step 2: Update the Status" />
+        <item itemvalue="HTTP Request.test_status | Step 1: Check Current Status" />
         <item itemvalue="Node.js.server.js" />
-        <item itemvalue="Docker.backend: Compose Deployment" />
-        <item itemvalue="HTTP Request.test_equipment | Test Get Existing Equipment" />
       </list>
     </recent_temporary>
   </component>
