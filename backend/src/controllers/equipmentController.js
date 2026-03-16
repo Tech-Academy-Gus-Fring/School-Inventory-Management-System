@@ -1,18 +1,16 @@
-const equipmentService = require('../services/equipmentService.js');
+const equipmentService = require('../services/equipmentService');
 
 const getEquipmentDetails = async (req, res) => {
     try {
         const {id} = req.params;
         const equipment = await equipmentService.getEquipmentById(id);
 
-        // Acceptance Criteria: Invalid ID returns 404
         if (!equipment) {
             return res.status(404).json({
                 message: `Equipment with ID ${id} not found`
             });
         }
 
-        // Success: returns equipment details
         return res.status(200).json(equipment);
     } catch (error) {
         console.error("Error fetching equipment:", error);
@@ -22,7 +20,7 @@ const getEquipmentDetails = async (req, res) => {
 
 const getEquipment = async (req, res) => {
     try {
-        const filters = req.query; // Тук идват search и type от URL-а
+        const filters = req.query;
         const list = await equipmentService.getAllEquipment(filters);
         res.status(200).json(list);
     } catch (error) {

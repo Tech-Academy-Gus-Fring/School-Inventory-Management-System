@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const equipmentController = require('../controllers/equipmentController');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
-// Requirement: GET /equipment/{id}
-router.get('/:id', equipmentController.getEquipmentDetails);
+// Публични маршрути
 router.get('/equipment', equipmentController.getEquipment);
 router.put('/:id/status', equipmentController.updateStatus);
 
