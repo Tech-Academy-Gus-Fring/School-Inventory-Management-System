@@ -240,6 +240,48 @@ GET /equipment?type=Laptop&condition=good
 
 ---
 
+### 7.1 Delete Equipment (Admin Only)
+**DELETE** `/equipment/:id`
+
+**Example:** `DELETE /equipment/1`
+
+**Headers:**
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Note:** Requires `admin` role. Only equipment with status `retired` can be deleted.
+
+**Response (200):**
+```json
+{
+  "message": "Equipment with ID 1 deleted successfully"
+}
+```
+
+**Response (400) - If not retired:**
+```json
+{
+  "message": "Cannot delete equipment that is not retired"
+}
+```
+
+**Response (403) - If not admin:**
+```json
+{
+  "message": "Access denied. Insufficient permissions."
+}
+```
+
+**Response (404):**
+```json
+{
+  "message": "Equipment with ID 999 not found"
+}
+```
+
+---
+
 ## 🔒 Admin Endpoints
 
 ### 8. Get Admin Dashboard
@@ -332,6 +374,12 @@ curl -X GET http://localhost:5000/equipment/1
 ### Get All Equipment with Search
 ```bash
 curl -X GET "http://localhost:5000/equipment?search=laptop&status=available"
+```
+
+### Delete Equipment (Admin Only)
+```bash
+curl -X DELETE http://localhost:5000/equipment/1 \
+  -H "Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN_HERE"
 ```
 
 ### Refresh Token

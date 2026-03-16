@@ -40,10 +40,24 @@ const updateEquipmentStatus = async (id, status) => {
     return await equipment.update({ status });
 };
 
+const deleteEquipment = async (id) => {
+    const equipment = await Equipment.findByPk(id);
+    if (!equipment) return null;
+
+    // Safe deletion: only allow deletion if equipment is retired
+    if (equipment.status !== 'retired') {
+        throw new Error('Cannot delete equipment that is not retired');
+    }
+
+    await equipment.destroy();
+    return true;
+};
+
 module.exports = { 
     getEquipmentById, 
     getAllEquipment, 
     createEquipment,
     updateEquipment,
-    updateEquipmentStatus
+    updateEquipmentStatus,
+    deleteEquipment
 };
