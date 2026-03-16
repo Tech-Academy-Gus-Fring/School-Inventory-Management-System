@@ -7,5 +7,6 @@ const { authenticateToken, authorizeRoles } = require('../middleware/authMiddlew
 router.get('/', equipmentController.getEquipment);
 router.get('/:id', equipmentController.getEquipmentDetails);
 router.put('/:id/status', equipmentController.updateStatus);
+router.delete('/:id', authenticateToken, authorizeRoles("admin"), equipmentController.deleteEquipment);
 
 module.exports = router;

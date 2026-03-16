@@ -55,9 +55,29 @@ const updateStatus = async (req, res) => {
     }
 };
 
+const deleteEquipment = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const result = await equipmentService.deleteEquipment(id);
+
+        if (!result) {
+            return res.status(404).json({message: `Equipment with ID ${id} not found`});
+        }
+
+        return res.status(200).json({message: `Equipment with ID ${id} deleted successfully`});
+    } catch (error) {
+        if (error.message === 'Cannot delete equipment that is not retired') {
+            return res.status(400).json({message: error.message});
+        }
+        console.error("Error deleting equipment:", error);
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+};
+
 module.exports = {
     getEquipmentDetails,
     getEquipment,
     updateStatus,
+    deleteEquipment,
 
 }

@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="98e050de-4084-4ab4-b303-e143b3da6b6e" name="Changes" comment="Document API request examples in `API_REQUESTS.md`.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/API_REQUESTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/backend/API_REQUESTS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/controllers/equipmentController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/equipmentController.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/routes/equipmentRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/equipmentRoutes.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/services/equipmentService.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/services/equipmentService.js" afterDir="false" />
     </list>
@@ -91,7 +90,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "BE-13",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -174,7 +173,7 @@
       <workItem from="1773308473548" duration="5833000" />
       <workItem from="1773335835721" duration="3539000" />
       <workItem from="1773646039312" duration="118000" />
-      <workItem from="1773646217742" duration="1358000" />
+      <workItem from="1773646217742" duration="2172000" />
     </task>
     <task id="LOCAL-00001" summary="working auth">
       <option name="closed" value="true" />
