@@ -4,6 +4,7 @@ const equipmentController = require('../controllers/equipmentController');
 const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 // Публични маршрути
+router.post('/', authenticateToken, authorizeRoles("admin"), equipmentController.createEquipment);
 router.get('/', equipmentController.getEquipment);
 router.get('/:id', equipmentController.getEquipmentDetails);
 router.put('/:id/status', equipmentController.updateStatus);

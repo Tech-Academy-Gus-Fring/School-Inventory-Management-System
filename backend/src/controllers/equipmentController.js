@@ -74,10 +74,25 @@ const deleteEquipment = async (req, res) => {
     }
 };
 
+const createEquipment = async (req, res) => {
+    try {
+        const equipment = await equipmentService.createEquipment(req.body);
+
+        return res.status(201).json({
+            message: "Equipment created successfully",
+            equipment
+        });
+    } catch (error) {
+        console.error("Error creating equipment:", error);
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+};
+
 module.exports = {
     getEquipmentDetails,
     getEquipment,
     updateStatus,
     deleteEquipment,
+    createEquipment,
 
 }
