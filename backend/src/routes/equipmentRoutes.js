@@ -4,7 +4,8 @@ const equipmentController = require('../controllers/equipmentController');
 const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 // Публични маршрути
-router.get('/equipment', equipmentController.getEquipment);
+router.get('/', equipmentController.getEquipment);
+router.get('/:id', equipmentController.getEquipmentDetails);
 router.put('/:id/status', equipmentController.updateStatus);
 
 module.exports = router;

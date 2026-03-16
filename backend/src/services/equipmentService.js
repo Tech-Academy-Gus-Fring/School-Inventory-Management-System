@@ -5,12 +5,6 @@ const getEquipmentById = async (id) => {
     return await Equipment.findByPk(id);
 };
 
-module.exports = {
-    getEquipmentById,
-};
-//Tuk mahnah povtorniq declaration na { Equipment }
-const { Op } = require('sequelize');
-
 const getAllEquipment = async (filters) => {
     const { search, type, status } = filters;
     let whereClause = {};
@@ -39,9 +33,17 @@ const updateEquipment = async (id, data) => {
     return await equipment.update(data);
 };
 
+const updateEquipmentStatus = async (id, status) => {
+    const equipment = await Equipment.findByPk(id);
+    if (!equipment) return null;
+    
+    return await equipment.update({ status });
+};
+
 module.exports = { 
     getEquipmentById, 
     getAllEquipment, 
     createEquipment,
-    updateEquipment
+    updateEquipment,
+    updateEquipmentStatus
 };

@@ -4,18 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="98e050de-4084-4ab4-b303-e143b3da6b6e" name="Changes" comment="working auth">
+    <list default="true" id="98e050de-4084-4ab4-b303-e143b3da6b6e" name="Changes" comment="Document API request examples in `API_REQUESTS.md`.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/equipmentController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/equipmentController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/test_status.http" beforeDir="false" afterPath="$PROJECT_DIR$/backend/test_status.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/API_REQUESTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/backend/API_REQUESTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/routes/equipmentRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/equipmentRoutes.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/services/equipmentService.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/services/equipmentService.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_C:/Users/zdrav/Documents/GitHub/School-Inventory-Management-System" value="3AoPeXEVWgnLQZZWL7ELIP8Nsog" />
+    </persistenceIdMap>
+  </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="22" />
+    <option name="cachedIndexableFilesCount" value="57" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -44,7 +51,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Tech-Academy-Gus-Fring/School-Inventory-Management-System.git&quot;,
-    &quot;accountId&quot;: &quot;5bc1c6df-ada9-4a9c-8850-f51e352c8ee5&quot;
+    &quot;accountId&quot;: &quot;4e316143-bf0e-412e-83ed-c3d27e941458&quot;
   }
 }</component>
   <component name="HttpClientOnboardingState">{
@@ -70,14 +77,7 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Docker.backend: Compose Deployment.executor": "Run",
     "HTTP Request.All in test_equipment.executor": "Run",
-    "HTTP Request.All in test_status.executor": "Run",
     "HTTP Request.test_equipment | Test Get Existing Equipment.executor": "Run",
-    "HTTP Request.test_status | Step 1: Check Current Status.executor": "Run",
-    "HTTP Request.test_status | Step 2: Update the Status.executor": "Run",
-    "HTTP Request.test_status | Step 3: Verify the Change.executor": "Run",
-    "HTTP Request.test_status | Test 1: Successful Status Update.executor": "Run",
-    "HTTP Request.test_status | Test 3: Get All Equipment (Full List).executor": "Run",
-    "HTTP Request.test_status | Test 3:.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "Node.js.app.js.executor": "Run",
     "Node.js.authService.js.executor": "Run",
@@ -90,15 +90,19 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "BE-012",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
+    "junie.onboarding.icon.badge.shown": "true",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2024.3.1.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "settings.editor.selected.configurable": "com.github.copilot.settings.chat.ChatConfigurable",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\WebStorm 2025.3.2\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -115,33 +119,14 @@
       <recent name="C:\Users\zdrav\WebstormProjects\School-Inventory-Management-System\backend" />
     </key>
   </component>
-  <component name="RunDashboard">
-    <option name="configurationStatuses">
-      <map>
-        <entry key="HttpClient.HttpRequestRunConfigurationType">
-          <value>
-            <map>
-              <entry key="All in test_status" value="STOPPED" />
-              <entry key="test_status | Step 1: Check Current Status" value="STOPPED" />
-              <entry key="test_status | Step 2: Update the Status" value="STOPPED" />
-              <entry key="test_status | Step 3: Verify the Change" value="STOPPED" />
-            </map>
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="RunManager" selected="HTTP Request.All in test_status">
-    <configuration name="All in test_status" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/backend/test_status.http">
+  <component name="RunManager" selected="Node.js.server.js">
+    <configuration name="All in test_equipment" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/test_equipment.http">
       <method v="2" />
     </configuration>
-    <configuration name="test_status | Step 1: Check Current Status" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/backend/test_status.http" executionIdentifier="Step 1: Check Current Status" runType="Run single request">
+    <configuration name="test_equipment | Test Get Existing Equipment" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/test_equipment.http" executionIdentifier="Test Get Existing Equipment" runType="Run single request">
       <method v="2" />
     </configuration>
-    <configuration name="test_status | Step 2: Update the Status" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/backend/test_status.http" executionIdentifier="Step 2: Update the Status" index="2" runType="Run single request">
-      <method v="2" />
-    </configuration>
-    <configuration name="test_status | Step 3: Verify the Change" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$PROJECT_DIR$/backend/test_status.http" executionIdentifier="Step 3: Verify the Change" index="3" runType="Run single request">
+    <configuration name="app.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/backend/src/app.js" working-dir="$PROJECT_DIR$/backend/src">
       <method v="2" />
     </configuration>
     <configuration name="server.js" type="NodeJSConfigurationType" temporary="true" nameIsGenerated="true" path-to-js-file="$PROJECT_DIR$/backend/server.js" working-dir="$PROJECT_DIR$/backend">
@@ -153,13 +138,21 @@
       </deployment>
       <method v="2" />
     </configuration>
+    <configuration name="backend: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="backend/docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="HTTP Request.All in test_status" />
-        <item itemvalue="HTTP Request.test_status | Step 3: Verify the Change" />
-        <item itemvalue="HTTP Request.test_status | Step 2: Update the Status" />
-        <item itemvalue="HTTP Request.test_status | Step 1: Check Current Status" />
         <item itemvalue="Node.js.server.js" />
+        <item itemvalue="HTTP Request.test_equipment | Test Get Existing Equipment" />
+        <item itemvalue="HTTP Request.All in test_equipment" />
+        <item itemvalue="Docker.backend: Compose Deployment" />
+        <item itemvalue="Node.js.app.js" />
       </list>
     </recent_temporary>
   </component>
@@ -180,6 +173,8 @@
       <workItem from="1773256047194" duration="7904000" />
       <workItem from="1773308473548" duration="5833000" />
       <workItem from="1773335835721" duration="3539000" />
+      <workItem from="1773646039312" duration="118000" />
+      <workItem from="1773646217742" duration="1358000" />
     </task>
     <task id="LOCAL-00001" summary="working auth">
       <option name="closed" value="true" />
@@ -209,5 +204,13 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="working auth" />
     <option name="LAST_COMMIT_MESSAGE" value="working auth" />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
   </component>
 </project>

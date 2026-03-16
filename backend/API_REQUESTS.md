@@ -187,7 +187,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ---
 
 ### 7. Get All Equipment (with filters)
-**GET** `/equipment/equipment` or **GET** `/api/equipment`
+**GET** `/equipment`
 
 **Query Parameters:**
 - `search` - Search in name, type, serial_number
@@ -198,12 +198,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **Examples:**
 
 ```
-GET /equipment/equipment
-GET /equipment/equipment?search=laptop
-GET /equipment/equipment?type=Laptop
-GET /equipment/equipment?status=available
-GET /equipment/equipment?search=mac&status=available
-GET /equipment/equipment?type=Laptop&condition=good
+GET /equipment
+GET /equipment?search=laptop
+GET /equipment?type=Laptop
+GET /equipment?status=available
+GET /equipment?search=mac&status=available
+GET /equipment?type=Laptop&condition=good
 ```
 
 **Response (200):**
@@ -331,7 +331,7 @@ curl -X GET http://localhost:5000/equipment/1
 
 ### Get All Equipment with Search
 ```bash
-curl -X GET "http://localhost:5000/equipment/equipment?search=laptop&status=available"
+curl -X GET "http://localhost:5000/equipment?search=laptop&status=available"
 ```
 
 ### Refresh Token
