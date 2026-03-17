@@ -50,3 +50,13 @@ export const returnBorrowRequest = async (
     message: result.data.message,
   };
 };
+
+export const deleteBorrowRequest = async (
+  token: string,
+  requestId: number,
+): Promise<ApiResult<{ message: string }>> => {
+  return apiRequest<{ message: string }>(`/request/${requestId}`, {
+    method: 'DELETE',
+    token,
+  });
+};

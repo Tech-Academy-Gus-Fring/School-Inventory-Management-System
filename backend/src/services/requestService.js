@@ -149,11 +149,35 @@ const returnRequest = async (requestId, userId, condition, notes) => {
     return request;
 };
 
+const deleteRequest = async (requestId, actorId, actorRole) => {
+    const request = await Request.findByPk(requestId, {
+        include: [{ model: Equipment, as: 'equipment' }]
+    });
+
+    if (!request) {
+        throw new Error('Request not found');
+    }
+
+    const isPrivileged = actorRole === 'admin' || actorRole === 'teacher';
+    if (!isPrivileged && request.user_id !== actorId) {
+        throw new Error('Forbidden');
+    }
+
+    if (request.status === 'approved' && request.equipment && request.equipment.status === 'checked_out') {
+        request.equipment.status = 'available';
+        await request.equipment.save();
+    }
+
+    await request.destroy();
+    return true;
+};
+
 module.exports = {
     createBorrowRequest,
     getMyRequests,
     getAllRequestsAdmin,
     approveRequest,
     rejectRequest,
-    returnRequest
+    returnRequest,
+    deleteRequest
 };

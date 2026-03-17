@@ -12,15 +12,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   return <>{children}</>;
 };
 
-const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
-  if (isAuthenticated) {
-    if (user?.role === 'admin') return <Navigate to="/admin/dashboard" replace />;
-    return <Navigate to="/dashboard" replace />;
-  }
-  return <>{children}</>;
-};
-
 const AdminOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/admin/login" replace />;
@@ -40,9 +31,7 @@ const App: React.FC = () => {
       <Route
         path="/auth"
         element={
-          <PublicOnlyRoute>
-            <AuthPage defaultMode="login" />
-          </PublicOnlyRoute>
+          <AuthPage defaultMode="login" />
         }
       />
       <Route
@@ -56,9 +45,7 @@ const App: React.FC = () => {
       <Route
         path="/admin/login"
         element={
-          <PublicOnlyRoute>
-            <AdminLoginPage />
-          </PublicOnlyRoute>
+          <AdminLoginPage />
         }
       />
       <Route

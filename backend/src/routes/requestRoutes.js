@@ -21,4 +21,7 @@ router.put('/:id/reject', authenticateToken, authorizeRoles('admin', 'teacher'),
 // BE-019: PUT /request/{id}/return (Authenticated)
 router.put('/:id/return', authenticateToken, requestController.returnRequest);
 
+// Delete request (owner/admin/teacher)
+router.delete('/:id', authenticateToken, requestController.deleteRequest);
+
 module.exports = router;

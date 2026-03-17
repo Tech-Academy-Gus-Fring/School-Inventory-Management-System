@@ -115,3 +115,10 @@ export const getRequestsAsAdmin = async (token: string): Promise<ApiResult<{ req
     token,
   });
 };
+
+export const deleteRequestAsAdmin = async (token: string, requestId: number): Promise<ApiResult<{ message: string }>> => {
+  return apiRequest<{ message: string }>(`/request/${requestId}`, {
+    method: 'DELETE',
+    token,
+  });
+};

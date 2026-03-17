@@ -9,7 +9,7 @@ import { useAuthStore } from '@/stores/authStore';
 
 const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { login, user, isLoading, error, setError, logout } = useAuthStore();
+  const { login, isLoading, error, setError, logout } = useAuthStore();
 
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [email, setEmail] = useState('');
@@ -33,7 +33,8 @@ const AdminLoginPage: React.FC = () => {
     const success = await login(email, password);
     if (!success) return;
 
-    const currentUser = user || useAuthStore.getState().user;
+    // Read the latest user from store after login resolves to avoid stale closure values.
+    const currentUser = useAuthStore.getState().user;
     if (currentUser?.role !== 'admin') {
       await logout();
       setError('This account is not an admin account. Use the standard login page.');
@@ -49,8 +50,8 @@ const AdminLoginPage: React.FC = () => {
         <InteractiveBackground theme={theme} />
         <ThemeToggle defaultTheme={theme} onThemeChange={setTheme} />
 
-        <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-10">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200/50 dark:border-purple-500/20 bg-white/95 dark:bg-slate-900/85 backdrop-blur-xl p-8 md:p-10 shadow-2xl dark:shadow-purple-500/10">
+        <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-12">
+          <div className="w-full max-w-md rounded-2xl border border-slate-200/50 dark:border-purple-500/20 bg-white/95 dark:bg-slate-900/85 backdrop-blur-xl p-6 sm:p-8 md:p-10 shadow-2xl dark:shadow-purple-500/10">
             <button
               type="button"
               onClick={() => navigate('/auth')}
@@ -64,7 +65,7 @@ const AdminLoginPage: React.FC = () => {
               <div className="mx-auto mb-3 w-14 h-14 rounded-full bg-lime-100 dark:bg-purple-900/40 flex items-center justify-center">
                 <ShieldCheck className="w-7 h-7 text-lime-700 dark:text-purple-300" />
               </div>
-              <h1 className="text-3xl font-bold text-lime-600 dark:text-white">Admin Panel Access</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-lime-600 dark:text-white">Admin Panel Access</h1>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
                 Sign in with an admin account to manage the inventory system.
               </p>

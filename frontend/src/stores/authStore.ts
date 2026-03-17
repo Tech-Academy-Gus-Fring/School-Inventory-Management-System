@@ -60,8 +60,13 @@ const clearSession = () => {
   localStorage.removeItem(SESSION_KEY);
 };
 
+const bootSession = readSession();
+
 export const useAuthStore = create<AuthStore>((set) => ({
   ...initialState,
+  isAuthenticated: !!bootSession,
+  user: bootSession?.user || null,
+  token: bootSession?.token || null,
 
   setMode: (mode) => set({ mode }),
   setLoading: (loading) => set({ isLoading: loading }),
@@ -119,7 +124,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   hydrateSession: async () => {
     const session = readSession();
-    if (!session) return;
+    if (!session) {
+      set({ ...initialState });
+      return;
+    }
 
     set({
       token: session.token,
@@ -129,14 +137,39 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
     const authService = getAuthService();
     const profileResult = await authService.getCurrentUser(session.token);
-    if (!profileResult.success || !profileResult.data) {
+    if (profileResult.success && profileResult.data) {
+      saveSession(session.token, profileResult.data);
+      set({ user: profileResult.data });
+      return;
+    }
+
+    // Access token may be stale after reload; attempt refresh using httpOnly cookie.
+    const refreshResult = await authService.refreshSession();
+    if (refreshResult.success && refreshResult.data) {
+      saveSession(refreshResult.data.accessToken, refreshResult.data.user);
+      set({
+        token: refreshResult.data.accessToken,
+        user: refreshResult.data.user,
+        isAuthenticated: true,
+      });
+      return;
+    }
+
+    const authFailure = `${profileResult.error || ''} ${refreshResult.error || ''}`.toLowerCase();
+    const isAuthExpired = authFailure.includes('invalid') || authFailure.includes('expired') || authFailure.includes('401');
+
+    if (isAuthExpired) {
       clearSession();
       set({ ...initialState });
       return;
     }
 
-    saveSession(session.token, profileResult.data);
-    set({ user: profileResult.data });
+    // Keep existing session if backend is temporarily unreachable to avoid logging out on refresh.
+    set({
+      token: session.token,
+      user: session.user,
+      isAuthenticated: true,
+    });
   },
 
   logout: async () => {

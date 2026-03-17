@@ -127,4 +127,25 @@ const returnRequest = async (req, res) => {
     }
 };
 
-module.exports = { submitRequest, getUserRequests, getAdminRequests, approveRequest, rejectRequest, returnRequest };
+const deleteRequest = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const actorId = req.user.userId;
+        const actorRole = req.user.role;
+
+        await requestService.deleteRequest(id, actorId, actorRole);
+
+        return res.status(200).json({ message: 'Request deleted successfully' });
+    } catch (error) {
+        if (error.message === 'Request not found') {
+            return res.status(404).json({ message: error.message });
+        }
+        if (error.message === 'Forbidden') {
+            return res.status(403).json({ message: 'Forbidden: cannot delete this request' });
+        }
+        console.error('Error deleting request:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+module.exports = { submitRequest, getUserRequests, getAdminRequests, approveRequest, rejectRequest, returnRequest, deleteRequest };
