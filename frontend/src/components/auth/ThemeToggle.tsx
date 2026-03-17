@@ -7,6 +7,8 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, Moon } from 'lucide-react';
 
+const THEME_STORAGE_KEY = 'sims_theme';
+
 export interface ThemeToggleProps {
   defaultTheme?: 'light' | 'dark';
   onThemeChange?: (theme: 'light' | 'dark') => void;
@@ -19,8 +21,20 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   const [theme, setTheme] = useState<'light' | 'dark'>(defaultTheme);
 
   useEffect(() => {
-    // Placeholder: will sync with localStorage in implementation
-    // and apply theme to document root
+    setTheme(defaultTheme);
+  }, [defaultTheme]);
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (storedTheme === 'light' || storedTheme === 'dark') {
+      setTheme(storedTheme);
+      onThemeChange?.(storedTheme);
+    }
+  }, [onThemeChange]);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
   const handleToggle = () => {

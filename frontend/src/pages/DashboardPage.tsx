@@ -16,7 +16,9 @@ export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, token, isAuthenticated, logout } = useAuthStore();
 
-  const [theme, setTheme] = useState<ThemeMode>('dark');
+  const [theme, setTheme] = useState<ThemeMode>(() =>
+    localStorage.getItem('sims_theme') === 'light' ? 'light' : 'dark'
+  );
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [requests, setRequests] = useState<BorrowRequest[]>([]);
   const [search, setSearch] = useState('');

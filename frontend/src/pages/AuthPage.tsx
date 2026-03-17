@@ -23,7 +23,9 @@ export type AuthPageProps = {
 
 export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'login' }) => {
   const navigate = useNavigate();
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
+    localStorage.getItem('sims_theme') === 'light' ? 'light' : 'dark'
+  );
   const {
     mode,
     setMode,

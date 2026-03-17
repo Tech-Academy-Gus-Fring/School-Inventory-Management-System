@@ -27,7 +27,9 @@ const AdminDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, token, isAuthenticated, logout } = useAuthStore();
 
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
+    localStorage.getItem('sims_theme') === 'light' ? 'light' : 'dark'
+  );
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dashboardInfo, setDashboardInfo] = useState<string>('Loading admin data...');

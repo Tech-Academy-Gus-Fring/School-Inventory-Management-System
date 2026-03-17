@@ -11,7 +11,9 @@ const AdminLoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { login, isLoading, error, setError, logout } = useAuthStore();
 
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
+    localStorage.getItem('sims_theme') === 'light' ? 'light' : 'dark'
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
