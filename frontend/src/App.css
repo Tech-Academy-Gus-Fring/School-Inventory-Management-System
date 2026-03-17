@@ -1,0 +1,13 @@
+.app { max-width: 960px; margin: 0 auto; }
+.card { background: #fff; border-radius: 10px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 12px rgba(15, 23, 42, 0.08); }
+.auth-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+input, select, button { width: 100%; padding: 0.56rem; border-radius: 8px; border: 1px solid #cbd5e1; margin-top: 0.45rem; }
+button { background: #1d4ed8; color: white; border: none; cursor: pointer; }
+button:hover { background: #1e40af; }
+.list { list-style: none; padding-left: 0; margin-top: 0.5rem; }
+.list li { border-bottom: 1px dashed #cbd5e1; padding: 0.35rem 0; }
+.request-form { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; align-items: end; margin-top: 0.75rem; }
+.success { color: #16a34a; }
+.error { color: #dc2626; }
+.admin-form { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 0.6rem; margin-top: 0.7rem; }
+pre { background: #f1f5f9; border-radius: 8px; padding: 0.8rem; overflow-x: auto; }

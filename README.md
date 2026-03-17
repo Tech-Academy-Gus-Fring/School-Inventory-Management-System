@@ -191,6 +191,11 @@ node seed.js # Seed initial data
 npm start
 # or npm run dev (for development with auto-reload)
 The server will run on http://localhost:5000
+
+
+## Frontend startup
+A startup frontend is available under `frontend/` with `index.html`, `app.js`, and `style.css`.
+Serve it with a static server (for example `npx http-server frontend -p 3000`) and open `http://localhost:3000`.
 ---
 ## Testing
 Use Postman or the provided postman_collection.json to test API endpoints.

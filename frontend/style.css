@@ -1,0 +1,15 @@
+:root { --bg: #f4f6fb; --card: #fff; --primary: #1d4ed8; --primary-light: #eff6ff; --text: #0f172a; --success: #16a34a; --error: #dc2626; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, sans-serif; background: var(--bg); color: var(--text); }
+.container { width: min(100%, 960px); margin: 1.5rem auto; padding: 0 1rem; }
+.card { background: var(--card); border-radius: 12px; box-shadow: 0 4px 15px rgba(15, 23, 42, 0.08); padding: 1.1rem; margin-bottom: 1rem; }
+.card h2 { margin-top: 0; }
+.split { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 1rem; }
+input, select, button { width: 100%; padding: 0.55rem 0.65rem; border-radius: 8px; border: 1px solid #cbd5e1; font-size: .95rem; margin: .3rem 0; }
+button { background: var(--primary); color: white; border: none; cursor: pointer; }
+button:hover { background: #1e40af; }
+.message { min-height: 1.4rem; font-size: .9rem; margin-top: .6rem; }
+.message.success { color: var(--success); }
+.message.error { color: var(--error); }
+ul { list-style: none; padding-left: 0; }
+li { margin: .25rem 0; border-bottom: 1px dashed #cbd5e1; padding: .4rem 0; }
