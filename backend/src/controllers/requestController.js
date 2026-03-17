@@ -46,6 +46,16 @@ const getUserRequests = async (req, res) => {
     }
 };
 
+const getAdminRequests = async (req, res) => {
+    try {
+        const requests = await requestService.getAllRequestsAdmin(req.query || {});
+        return res.status(200).json({ requests });
+    } catch (error) {
+        console.error('Error fetching admin requests:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 const approveRequest = async (req, res) => {
     try {
         const { id } = req.params;
@@ -117,4 +127,4 @@ const returnRequest = async (req, res) => {
     }
 };
 
-module.exports = { submitRequest, getUserRequests, approveRequest, rejectRequest, returnRequest };
+module.exports = { submitRequest, getUserRequests, getAdminRequests, approveRequest, rejectRequest, returnRequest };

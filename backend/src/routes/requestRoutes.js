@@ -9,6 +9,9 @@ router.post('/', authenticateToken, requestController.submitRequest);
 // BE-015: GET current user requests
 router.get('/my', authenticateToken, requestController.getUserRequests);
 
+// BE-016: GET all requests for admin/teacher moderation
+router.get('/', authenticateToken, authorizeRoles('admin', 'teacher'), requestController.getAdminRequests);
+
 // BE-017: PUT /request/{id}/approve (Admin or Teacher)
 router.put('/:id/approve', authenticateToken, authorizeRoles('admin', 'teacher'), requestController.approveRequest);
 

@@ -1,5 +1,20 @@
 const { User } = require('../../models');
+const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
+
+const listUsers = async (req, res) => {
+    try {
+        const users = await User.findAll({
+            attributes: ['id', 'username', 'email', 'role', 'created_at'],
+            order: [['created_at', 'DESC']]
+        });
+
+        return res.status(200).json({ users });
+    } catch (error) {
+        console.error('Error listing users:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
 
 const createUser = async (req, res) => {
     try {
@@ -12,9 +27,13 @@ const createUser = async (req, res) => {
             });
         }
 
+        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedUsername = username.trim();
+        const normalizedRole = role.trim().toLowerCase();
+
         // Validate role
         const validRoles = ['student', 'teacher', 'admin'];
-        if (!validRoles.includes(role)) {
+        if (!validRoles.includes(normalizedRole)) {
             return res.status(400).json({
                 message: `Invalid role. Allowed values: ${validRoles.join(', ')}`
             });
@@ -23,9 +42,9 @@ const createUser = async (req, res) => {
         // Check if user already exists
         const existingUser = await User.findOne({
             where: {
-                [require('sequelize').Op.or]: [
-                    { email },
-                    { username }
+                [Op.or]: [
+                    { email: normalizedEmail },
+                    { username: normalizedUsername }
                 ]
             }
         });
@@ -41,14 +60,14 @@ const createUser = async (req, res) => {
 
         // Create user
         const newUser = await User.create({
-            username,
-            email,
-            password: hashedPassword,
-            role
+            username: normalizedUsername,
+            email: normalizedEmail,
+            password_hash: hashedPassword,
+            role: normalizedRole
         });
 
-        // Return user without password
-        const { password: _, ...userWithoutPassword } = newUser.toJSON();
+        // Return user without password hash
+        const { password_hash: _, ...userWithoutPassword } = newUser.toJSON();
 
         return res.status(201).json({
             message: "User created successfully",
@@ -56,6 +75,27 @@ const createUser = async (req, res) => {
         });
     } catch (error) {
         console.error('Error creating user:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (Number(id) === req.user.userId) {
+            return res.status(400).json({ message: 'Admin cannot delete their own account' });
+        }
+
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        await user.destroy();
+        return res.status(200).json({ message: `User ${user.username} deleted successfully` });
+    } catch (error) {
+        console.error('Error deleting user:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -91,4 +131,4 @@ const updateUserRole = async (req, res) => {
     }
 };
 
-module.exports = { createUser, updateUserRole };
+module.exports = { listUsers, createUser, deleteUser, updateUserRole };

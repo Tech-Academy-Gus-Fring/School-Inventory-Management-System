@@ -1,4 +1,5 @@
-const { Request, Equipment } = require('../../models');
+const { Request, Equipment, User } = require('../../models');
+const { Op } = require('sequelize');
 
 const createBorrowRequest = async (requestData) => {
     const equipment = await Equipment.findByPk(requestData.equipment_id);
@@ -26,6 +27,38 @@ const getMyRequests = async (userId) => {
     return await Request.findAll({
         where: { user_id: userId },
         include: [{ model: Equipment, as: 'equipment' }], // Matches the alias in your model
+        order: [['created_at', 'DESC']]
+    });
+};
+
+const getAllRequestsAdmin = async (filters = {}) => {
+    const { status, user_id, equipment_id, startDate, endDate } = filters;
+    const whereClause = {};
+
+    if (status) whereClause.status = status;
+    if (user_id) whereClause.user_id = user_id;
+    if (equipment_id) whereClause.equipment_id = equipment_id;
+
+    if (startDate || endDate) {
+        whereClause.request_date = {};
+        if (startDate) whereClause.request_date[Op.gte] = new Date(startDate);
+        if (endDate) whereClause.request_date[Op.lte] = new Date(endDate);
+    }
+
+    return await Request.findAll({
+        where: whereClause,
+        include: [
+            {
+                model: Equipment,
+                as: 'equipment',
+                attributes: ['id', 'name', 'type', 'serial_number']
+            },
+            {
+                model: User,
+                as: 'user',
+                attributes: ['id', 'username', 'email']
+            }
+        ],
         order: [['created_at', 'DESC']]
     });
 };
@@ -119,6 +152,7 @@ const returnRequest = async (requestId, userId, condition, notes) => {
 module.exports = {
     createBorrowRequest,
     getMyRequests,
+    getAllRequestsAdmin,
     approveRequest,
     rejectRequest,
     returnRequest

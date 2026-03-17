@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { InteractiveBackground } from '@/components/auth/InteractiveBackground';
 import { ThemeToggle } from '@/components/auth/ThemeToggle';
 import { LoginForm } from '@/components/auth/LoginForm';
@@ -21,8 +22,19 @@ export type AuthPageProps = {
 };
 
 export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'login' }) => {
+  const navigate = useNavigate();
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const { mode, setMode, isLoading, error, showForgotPassword, setShowForgotPassword } = useAuthStore();
+  const {
+    mode,
+    setMode,
+    isLoading,
+    error,
+    showForgotPassword,
+    setShowForgotPassword,
+    login,
+    signup,
+    setError,
+  } = useAuthStore();
   const cardRef      = useRef<HTMLDivElement>(null);
   const prevHeight   = useRef<number>(0);
   const cleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -45,6 +57,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'login' }) => 
     }
     apply();
   }, []);
+
+  useEffect(() => {
+    setMode(defaultMode);
+  }, [defaultMode, setMode]);
 
   /** After React paints the new content, animate from the locked old height to the new natural height. */
   useEffect(() => {
@@ -73,6 +89,29 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'login' }) => 
       prevHeight.current = 0;
     }, HEIGHT_MS + 50);
   }, [activeView]);
+
+  const handleLogin = async (email: string, password: string) => {
+    const success = await login(email, password);
+    if (!success) return;
+
+    const currentUser = useAuthStore.getState().user;
+    if (currentUser?.role === 'admin') {
+      navigate('/admin/dashboard');
+      return;
+    }
+
+    navigate('/dashboard');
+  };
+
+  const handleSignup = async (username: string, email: string, password: string) => {
+    const success = await signup(username, email, password);
+    if (success) navigate('/dashboard');
+  };
+
+  const handleForgotPassword = (email: string) => {
+    // Current backend has no password-reset endpoint yet.
+    setError(`Password reset endpoint is not available yet. Saved email: ${email}`);
+  };
 
   return (
     <div className={theme === 'dark' ? 'dark' : 'light'}>
@@ -111,19 +150,23 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'login' }) => 
               {activeView === 'forgot' ? (
                 <ForgotPasswordForm
                   onBackToLogin={() => switchView(() => setShowForgotPassword(false))}
+                  onSubmit={handleForgotPassword}
                   isLoading={isLoading}
                   error={error}
                 />
               ) : activeView === 'login' ? (
                 <LoginForm
                   onSwitchToSignup={() => switchView(() => setMode('signup'))}
+                  onSwitchToAdmin={() => navigate('/admin/login')}
                   onForgotPassword={() => switchView(() => setShowForgotPassword(true))}
+                  onSubmit={handleLogin}
                   isLoading={isLoading}
                   error={error}
                 />
               ) : (
                 <SignupForm
                   onSwitchToLogin={() => switchView(() => setMode('login'))}
+                  onSubmit={handleSignup}
                   isLoading={isLoading}
                   error={error}
                 />
