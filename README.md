@@ -56,7 +56,7 @@ backend/
 ├── package.json        # Node dependencies
 ├── docker-compose.yml  # Docker database setup
 └── postman_collection.json # API endpoints documentation
-`
+```
 ---
 ## Database Schema
 ### Users Table
