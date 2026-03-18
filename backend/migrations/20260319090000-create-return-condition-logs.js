@@ -53,9 +53,20 @@ module.exports = {
       }
     });
 
-    await queryInterface.addIndex('return_condition_logs', ['request_id']);
-    await queryInterface.addIndex('return_condition_logs', ['equipment_id']);
-    await queryInterface.addIndex('return_condition_logs', ['recorded_at']);
+    await queryInterface.sequelize.query(`
+      CREATE INDEX IF NOT EXISTS "return_condition_logs_request_id"
+      ON "return_condition_logs" ("request_id")
+    `);
+
+    await queryInterface.sequelize.query(`
+      CREATE INDEX IF NOT EXISTS "return_condition_logs_equipment_id"
+      ON "return_condition_logs" ("equipment_id")
+    `);
+
+    await queryInterface.sequelize.query(`
+      CREATE INDEX IF NOT EXISTS "return_condition_logs_recorded_at"
+      ON "return_condition_logs" ("recorded_at")
+    `);
 
     await queryInterface.sequelize.query(`
       INSERT INTO return_condition_logs (request_id, equipment_id, condition, notes, recorded_at, created_at, updated_at)
@@ -69,6 +80,11 @@ module.exports = {
         NOW()
       FROM requests
       WHERE return_condition IS NOT NULL
+        AND NOT EXISTS (
+          SELECT 1
+          FROM return_condition_logs logs
+          WHERE logs.request_id = requests.id
+        )
     `);
   },
 
