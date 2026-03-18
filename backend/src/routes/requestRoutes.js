@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const requestController = require('../controllers/requestController');
-const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
+const {authenticateToken, authorizeRoles} = require('../middleware/authMiddleware');
 
 // Requirement: POST /request (Authenticated)
 router.post('/', authenticateToken, requestController.submitRequest);
@@ -17,5 +17,10 @@ router.put('/:id/reject', authenticateToken, authorizeRoles('admin', 'teacher'),
 
 // BE-019: PUT /request/{id}/return (Authenticated)
 router.put('/:id/return', authenticateToken, requestController.returnRequest);
+
+//BE-021
+router.get('/history/equipment/:id', authenticateToken, authorizeRoles('admin', 'teacher'), requestController.getEquipmentHistory);
+
+router.get('/history/users/:id',authenticateToken, authorizeRoles('admin', 'teacher'), requestController.getUserHistory);
 
 module.exports = router;
