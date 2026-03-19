@@ -1,13 +1,13 @@
 {
   "info": {
     "name": "School Inventory Management API",
-    "description": "Postman collection aligned with the current backend routes and payloads.\n\nAuthentication note:\n- /auth/login returns the access token in JSON and sets the refresh token as an httpOnly cookie.\n- In Postman, keep the cookie jar enabled for /auth/refresh and /auth/logout to work without manually pasting a refresh token.\n- The refreshToken body field is optional fallback input when you already have the token value from another client.",
+    "description": "Postman collection aligned with the current backend routes and payloads.\n\nBase URL note:\n- Set `baseUrl` to the API root. The default value in this collection is `http://localhost:5000/api`.\n\nAuthentication note:\n- /auth/login returns the access token in JSON and sets the refresh token as an httpOnly cookie.\n- In Postman, keep the cookie jar enabled for /auth/refresh and /auth/logout to work without manually pasting a refresh token.\n- The refreshToken body field is optional fallback input when you already have the token value from another client.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:5000",
+      "value": "http://localhost:5000/api",
       "type": "string"
     },
     {
@@ -344,33 +344,6 @@
               "path": [
                 "auth",
                 "logout"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Users",
-      "item": [
-        {
-          "name": "Get User Profile",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{accessToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/users/profile",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "users",
-                "profile"
               ]
             }
           }
@@ -773,12 +746,12 @@
               "raw": "{\n  \"equipment_id\": {{equipmentId}},\n  \"quantity\": 2,\n  \"request_date\": \"2026-03-20T09:00:00.000Z\",\n  \"due_date\": \"2026-03-25T09:00:00.000Z\",\n  \"notes\": \"Need this equipment for a classroom demo\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/request",
+              "raw": "{{baseUrl}}/requests",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "request"
+                "requests"
               ]
             }
           }
@@ -794,12 +767,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/request/my",
+              "raw": "{{baseUrl}}/requests/my",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "request",
+                "requests",
                 "my"
               ]
             }
@@ -817,12 +790,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/request/history/equipment/{{equipmentId}}",
+              "raw": "{{baseUrl}}/requests/history/equipment/{{equipmentId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "request",
+                "requests",
                 "history",
                 "equipment",
                 "{{equipmentId}}"
@@ -842,12 +815,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/request/history/users/{{userId}}",
+              "raw": "{{baseUrl}}/requests/history/users/{{userId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "request",
+                "requests",
                 "history",
                 "users",
                 "{{userId}}"
@@ -858,7 +831,7 @@
         {
           "name": "Get Request Condition History",
           "request": {
-            "description": "Admin only. Returns the condition log entries associated with a specific request.",
+            "description": "Admin only. Returns the condition log entries associated with a specific request. A trailing slash variant also works.",
             "method": "GET",
             "header": [
               {
@@ -867,12 +840,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/request/{{requestId}}/condition-history",
+              "raw": "{{baseUrl}}/requests/{{requestId}}/condition-history",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "request",
+                "requests",
                 "{{requestId}}",
                 "condition-history"
               ]
@@ -890,12 +863,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/request/{{requestId}}/approve",
+              "raw": "{{baseUrl}}/requests/{{requestId}}/approve",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "request",
+                "requests",
                 "{{requestId}}",
                 "approve"
               ]
@@ -921,12 +894,12 @@
               "raw": "{\n  \"reason\": \"Equipment is reserved for another class\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/request/{{requestId}}/reject",
+              "raw": "{{baseUrl}}/requests/{{requestId}}/reject",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "request",
+                "requests",
                 "{{requestId}}",
                 "reject"
               ]
@@ -936,7 +909,7 @@
         {
           "name": "Return Request",
           "request": {
-            "description": "Marks an approved request as returned. `condition` is required and must be one of: new, good, fair, damaged.",
+            "description": "Marks an approved request as returned. `condition` is required and must be one of: new, good, fair, damaged. The return also writes a historical condition-log record.",
             "method": "PUT",
             "header": [
               {
@@ -953,14 +926,114 @@
               "raw": "{\n  \"condition\": \"good\",\n  \"notes\": \"Returned after class use\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/request/{{requestId}}/return",
+              "raw": "{{baseUrl}}/requests/{{requestId}}/return",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "request",
+                "requests",
                 "{{requestId}}",
                 "return"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Get Usage Report",
+          "request": {
+            "description": "Admin only. Aggregates requests by equipment. Optional query params: startDate, endDate.",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/usage?startDate=2026-03-01&endDate=2026-03-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "usage"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-03-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-03-31"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get History Report",
+          "request": {
+            "description": "Admin only. Returns request history rows. Optional query params: status, user_id, equipment_id, startDate, endDate.",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/history?status=returned&equipment_id={{equipmentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "returned"
+                },
+                {
+                  "key": "equipment_id",
+                  "value": "{{equipmentId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Export History Report CSV",
+          "request": {
+            "description": "Admin only. Exports the history report as CSV. Supports the same filters as the history report endpoint.",
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/export?status=returned",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "reports",
+                "export"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "returned"
+                }
               ]
             }
           }
