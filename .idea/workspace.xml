@@ -6,11 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="98e050de-4084-4ab4-b303-e143b3da6b6e" name="Changes" comment="Document API request examples in `API_REQUESTS.md`.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/API_REQUESTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/backend/API_REQUESTS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/All_API_Requests.md" beforeDir="false" afterPath="$PROJECT_DIR$/backend/All_API_Requests.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/requestController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/requestController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.http" beforeDir="false" afterPath="$PROJECT_DIR$/test.http" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_log.http" beforeDir="false" afterPath="$PROJECT_DIR$/test_log.http" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/services/requestService.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/services/requestService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/Input.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ui/Input.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/DashboardPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DashboardPage.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,7 +23,7 @@
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="101" />
+    <option name="cachedIndexableFilesCount" value="309" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">

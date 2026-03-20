@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const errorHandler = require('./middleware/errorHandler');
 
 // Импорт на маршрутите
 const authRoutes = require('./routes/authRoutes');
@@ -20,12 +21,21 @@ app.use(cookieParser());
 
 // Дефиниране на API маршрутите
 app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/admin', adminRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/equipment', equipmentRoutes);
+app.use('/api/equipment', equipmentRoutes);
 app.use('/request', requestRoutes);
+app.use('/requests', requestRoutes);
+app.use('/api/request', requestRoutes);
+app.use('/api/requests', requestRoutes);
 app.use('/reports', reportRoutes);
+app.use('/api/reports', reportRoutes);
 app.use('/users', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/spatial', spatialRoutes);
+app.use('/api/spatial', spatialRoutes);
 
 // Базов маршрут за проверка
 app.get('/', (req, res) => {
@@ -33,9 +43,6 @@ app.get('/', (req, res) => {
 });
 
 // Error handling middleware (по избор, но силно препоръчително)
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
-});
+app.use(errorHandler);
 
 module.exports = app;

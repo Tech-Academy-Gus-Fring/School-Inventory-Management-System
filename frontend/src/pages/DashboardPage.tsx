@@ -43,6 +43,13 @@ interface GroupedEquipment extends Equipment {
   all_items: Equipment[];
 }
 
+const fallbackUsageData = [
+  { name: 'Microscope Demo', borrowCount: 15 },
+  { name: 'MacBook Pro', borrowCount: 12 },
+  { name: 'Projector XYZ', borrowCount: 8 },
+  { name: 'Tablet Gen 5', borrowCount: 5 },
+];
+
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, token, isAuthenticated, logout } = useAuthStore();
@@ -147,7 +154,7 @@ const DashboardPage: React.FC = () => {
           }
         }
       }
-    } catch (err) {
+    } catch {
       setError('A connection error occurred');
     } finally {
       setLoadingEquipment(false);
@@ -371,6 +378,8 @@ const DashboardPage: React.FC = () => {
     });
     return Object.values(groups) as GroupedEquipment[];
   }, [equipment, requests, selectedRoomId, showAllUnits, floors, currentFloorId, searchTerm]);
+
+  const usageChartData = reportData.usage.length > 0 ? reportData.usage : fallbackUsageData;
 
   const onQuickBorrow = async (equipmentId: number) => {
     if (!token) return;
@@ -722,14 +731,9 @@ const DashboardPage: React.FC = () => {
             </div>
 
             <div className="h-[240px] w-full bg-white dark:bg-[#1d1d1f] p-4 rounded-2xl border border-[#d2d2d7] dark:border-[#303030]">
-              {true ? (
+              {usageChartData.length > 0 ? (
                 <ResponsiveContainer width="99%" height={200}>
-                  <BarChart data={reportData.usage.length > 0 ? reportData.usage : [
-                    { name: 'Microscope Demo', borrowCount: 15 },
-                    { name: 'MacBook Pro', borrowCount: 12 },
-                    { name: 'Projector XYZ', borrowCount: 8 },
-                    { name: 'Tablet Gen 5', borrowCount: 5 },
-                  ]} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                  <BarChart data={usageChartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                     <XAxis type="number" hide />
                     <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#86868b', fontWeight: 'bold' }} width={100} />
                     <Tooltip
@@ -738,7 +742,7 @@ const DashboardPage: React.FC = () => {
                       contentStyle={{ borderRadius: '12px', border: '1px solid #d2d2d7', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '10px', fontWeight: 'bold' }}
                     />
                     <Bar dataKey="borrowCount" radius={[0, 4, 4, 0]} barSize={12}>
-                      {reportData.usage.map((_, index) => (
+                      {usageChartData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#0066cc' : '#5e5e66'} />
                       ))}
                     </Bar>

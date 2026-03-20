@@ -7,7 +7,6 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   icon?: React.ReactNode;
   iconPosition?: 'left' | 'right';
   isValid?: boolean;
-  variant?: 'default' | 'logout';
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
@@ -19,7 +18,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       icon,
       iconPosition = 'left',
       isValid,
-      variant = 'default',
       className = '',
       id,
       type = 'text',
@@ -99,7 +97,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
 
         {isValid && !error && (
-          <p className="text-green-500 text-sm font-medium mt-2">✓ Valid</p>
+          <p className="text-green-500 text-sm font-medium mt-2">Valid</p>
         )}
       </div>
     );

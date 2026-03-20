@@ -1,4 +1,4 @@
-const { Equipment, Request, User, ReturnConditionLog } = require('../../models');
+const { Equipment, Request, User, ReturnConditionLog, Room } = require('../../models');
 const { Op } = require('sequelize');
 
 const getEquipmentById = async (id) => {

@@ -31,18 +31,6 @@ const createBorrowRequest = async (requestData) => {
         throw error;
     }
 
-    if (!Number.isInteger(requestData.quantity) || requestData.quantity < 1) {
-        const error = new Error('Quantity must be a positive integer');
-        error.statusCode = 400;
-        throw error;
-    }
-
-    if (requestData.quantity > equipment.quantity) {
-        const error = new Error('Requested quantity exceeds available inventory');
-        error.statusCode = 400;
-        throw error;
-    }
-
     return Request.create({
         user_id: requestData.user_id,
         equipment_id: requestData.equipment_id,
@@ -75,7 +63,6 @@ const getMyRequests = async (userId) => {
 const approveRequest = async (requestId, approverId) => {
     return sequelize.transaction(async (transaction) => {
         const request = await Request.findByPk(requestId, {
-            include: [{ model: Equipment, as: 'equipment' }],
             transaction,
             lock: transaction.LOCK.UPDATE
         });
@@ -92,13 +79,18 @@ const approveRequest = async (requestId, approverId) => {
             throw error;
         }
 
-        if (!request.equipment || request.equipment.status !== 'available') {
+        const equipment = await Equipment.findByPk(request.equipment_id, {
+            transaction,
+            lock: transaction.LOCK.UPDATE
+        });
+
+        if (!equipment || equipment.status !== 'available') {
             const error = new Error('Equipment is no longer available');
             error.statusCode = 400;
             throw error;
         }
 
-        if (request.quantity > request.equipment.quantity) {
+        if (request.quantity > equipment.quantity) {
             const error = new Error('Requested quantity exceeds available inventory');
             error.statusCode = 400;
             throw error;
@@ -108,36 +100,14 @@ const approveRequest = async (requestId, approverId) => {
         request.approved_by = approverId;
         await request.save({ transaction });
 
-        request.equipment.quantity -= request.quantity;
-        request.equipment.status = request.equipment.quantity === 0 ? 'checked_out' : 'available';
-        await request.equipment.save({ transaction });
+        equipment.quantity -= request.quantity;
+        equipment.status = equipment.quantity === 0 ? 'checked_out' : 'available';
+        await equipment.save({ transaction });
+
+        request.equipment = equipment;
 
         return request;
     });
-
-    if (!request) {
-        const error = new Error('Request not found');
-        error.statusCode = 404;
-        throw error;
-    }
-
-    if (request.status !== 'pending') {
-        const error = new Error('Only pending requests can be approved');
-        error.statusCode = 400;
-        throw error;
-    }
-
-    // Update request
-    request.status = 'approved';
-    request.approved_by = approverId;
-    await request.save();
-
-    // Update equipment inventory
-    request.equipment.quantity -= request.quantity;
-    request.equipment.status = request.equipment.quantity === 0 ? 'checked_out' : 'available';
-    await request.equipment.save();
-
-    return request;
 };
 
 /**
@@ -160,59 +130,6 @@ const returnRequest = async (requestId, userId, condition, notes, actorRole) => 
     const request = await Request.findByPk(requestId, {
         include: [{ model: Equipment, as: 'equipment' }]
     });
-};
-
-/**
- * BE-021: Borrowing history by equipment
- */
-const getEquipmentHistory = async (equipmentId) => {
-    return Request.findAll({
-        where: { equipment_id: equipmentId },
-        attributes: HISTORY_REQUEST_ATTRIBUTES,
-        include: HISTORY_INCLUDES,
-        order: [['request_date', 'DESC'], ['created_at', 'DESC']]
-    });
-};
-
-/**
- * BE-022: Usage Report
- */
-const getUsageReport = async (filters = {}) => {
-    const whereClause = buildHistoryWhereClause(filters);
-
-    return Request.findAll({
-        where: whereClause,
-        attributes: [
-            'equipment_id',
-            [fn('COUNT', col('Request.id')), 'total_requests'],
-            [fn('SUM', col('Request.quantity')), 'total_quantity_borrowed']
-        ],
-        include: [{
-            model: Equipment,
-            as: 'equipment',
-            attributes: ['id', 'name', 'type', 'serial_number']
-        }],
-        group: ['Request.equipment_id', 'equipment.id'],
-        order: [[fn('COUNT', col('Request.id')), 'DESC']]
-    });
-};
-
-/**
- * BE-023: Request history report
- */
-const getHistoryReport = async (filters = {}) => {
-    const whereClause = buildHistoryWhereClause(filters);
-
-    return Request.findAll({
-        where: whereClause,
-        attributes: HISTORY_REQUEST_ATTRIBUTES,
-        include: HISTORY_INCLUDES,
-        order: [['request_date', 'DESC'], ['created_at', 'DESC']]
-    });
-};
-
-const getRequestConditionHistory = async (requestId) => {
-    const request = await Request.findByPk(requestId);
 
     if (!request) {
         const error = new Error('Request not found');
@@ -259,7 +176,7 @@ const getRequestConditionHistory = async (requestId) => {
 /**
  * BE-022: Usage Report
  */
-const getUsageReport = async (filters) => {
+const getUsageReport = async (filters = {}) => {
     const { startDate, endDate } = filters;
     let whereClause = {};
 
@@ -282,14 +199,14 @@ const getUsageReport = async (filters) => {
             attributes: ['id', 'name', 'type', 'serial_number']
         }],
         group: ['Request.equipment_id', 'equipment.id', 'equipment.name', 'equipment.type', 'equipment.serial_number'],
-        order: [[literal('total_requests'), 'DESC']]
+        order: [[fn('COUNT', col('Request.id')), 'DESC']]
     });
 };
 
 /**
  * BE-023: History Report (ФИКСИРАН ЗА QUANTITY)
  */
-const getHistoryReport = async (filters) => {
+const getHistoryReport = async (filters = {}) => {
     const { startDate, endDate, status, equipment_id } = filters;
     let whereClause = {};
 
@@ -411,6 +328,29 @@ const getUserHistory = async (userId) => {
     });
 };
 
+const getRequestConditionHistory = async (requestId) => {
+    const request = await Request.findByPk(requestId);
+    if (!request) {
+        throw new Error('Request not found');
+    }
+
+    return await ReturnConditionLog.findAll({
+        where: { request_id: requestId },
+        include: [
+            {
+                model: Request,
+                as: 'request',
+                attributes: ['id', 'user_id', 'equipment_id', 'quantity', 'request_date', 'due_date', 'return_date', 'status'],
+                include: [
+                    { model: User, as: 'user', attributes: ['username', 'email'] },
+                    { model: Equipment, as: 'equipment', attributes: ['id', 'name', 'serial_number'] }
+                ]
+            }
+        ],
+        order: [['recorded_at', 'DESC'], ['created_at', 'DESC']]
+    });
+};
+
 const clearHistoryData = async () => {
     // Using raw SQL TRUNCATE with CASCADE is the most reliable way to clear these related tables in Postgres
     await sequelize.query('TRUNCATE return_condition_logs, requests RESTART IDENTITY CASCADE');
@@ -428,5 +368,6 @@ module.exports = {
     getHistoryReport,
     getEquipmentHistory,
     getUserHistory,
+    getRequestConditionHistory,
     clearHistoryData
 };

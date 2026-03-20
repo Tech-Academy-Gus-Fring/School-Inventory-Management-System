@@ -3,7 +3,7 @@ const requestService = require('../services/requestService');
 const submitRequest = async (req, res) => {
     try {
         const {equipment_id, request_date, due_date, notes, quantity = 1} = req.body;
-        const user_id = req.user.userId; // From authMiddleware (authenticated user)
+        const user_id = req.user.userId;
 
         const start = new Date(request_date);
         const end = new Date(due_date);
@@ -37,7 +37,7 @@ const submitRequest = async (req, res) => {
             return res.status(error.statusCode).json({message: error.message});
         }
         console.error("Request Error:", error);
-        res.status(500).json({message: "Internal Server Error"});
+        return res.status(500).json({message: "Internal Server Error"});
     }
 };
 
@@ -47,7 +47,7 @@ const getUserRequests = async (req, res) => {
         return res.status(200).json(requests);
     } catch (error) {
         console.error('Error fetching user requests:', error);
-        res.status(500).json({message: "Failed to fetch your requests"});
+        return res.status(500).json({message: "Failed to fetch your requests"});
     }
 };
 
@@ -64,7 +64,7 @@ const getAdminRequests = async (req, res) => {
 const approveRequest = async (req, res) => {
     try {
         const {id} = req.params;
-        const approverId = req.user.userId; // Assuming req.user has userId
+        const approverId = req.user.userId;
 
         const request = await requestService.approveRequest(id, approverId);
 
@@ -92,7 +92,7 @@ const approveRequest = async (req, res) => {
 const rejectRequest = async (req, res) => {
     try {
         const {id} = req.params;
-        const {reason} = req.body; // Optional rejection reason
+        const {reason} = req.body;
         const rejectorId = req.user.userId;
         const request = await requestService.rejectRequest(id, rejectorId, reason);
 
@@ -117,7 +117,7 @@ const rejectRequest = async (req, res) => {
 const returnRequest = async (req, res) => {
     try {
         const {id} = req.params;
-        const {condition, notes} = req.body; // Return condition and notes
+        const {condition, notes} = req.body;
         const userId = req.user.userId;
         const actorRole = req.user.role;
         const validConditions = ['new', 'good', 'fair', 'damaged'];
@@ -151,10 +151,10 @@ const getEquipmentHistory = async (req, res) => {
     try {
         const {id} = req.params;
         const history = await requestService.getEquipmentHistory(id);
-        res.status(200).json(history);
+        return res.status(200).json(history);
     } catch (error) {
         console.error('Error fetching equipment history:', error);
-        res.status(500).json({message: "Failed to fetch equipment history"});
+        return res.status(500).json({message: "Failed to fetch equipment history"});
     }
 };
 
@@ -162,22 +162,24 @@ const getUserHistory = async (req, res) => {
     try {
         const {id} = req.params;
         const history = await requestService.getUserHistory(id);
-        res.status(200).json(history);
+        return res.status(200).json(history);
     } catch (error) {
         console.error('Error fetching user history:', error);
-        res.status(500).json({message: "Failed to fetch user history"});
+        return res.status(500).json({message: "Failed to fetch user history"});
     }
 };
 
 const getRequestConditionHistory = async (req, res) => {
     try {
         const {id} = req.params;
-        // Тъй като в сервиза нямаш специфичен метод за това, връщаме стандартен успех
-        // за да не гърми маршрутизатора при старт.
-        res.status(200).json({ message: "Condition history for request " + id });
+        const history = await requestService.getRequestConditionHistory(id);
+        return res.status(200).json(history);
     } catch (error) {
+        if (error.message === 'Request not found') {
+            return res.status(404).json({message: error.message});
+        }
         console.error('Error fetching request condition history:', error);
-        res.status(500).json({message: "Internal Server Error"});
+        return res.status(500).json({message: "Internal Server Error"});
     }
 };
 
@@ -205,11 +207,11 @@ const deleteRequest = async (req, res) => {
 module.exports = {
     submitRequest,
     getUserRequests,
-    getAdminRequests, // Added
+    getAdminRequests,
     approveRequest,
     rejectRequest,
     returnRequest,
-    deleteRequest,   // Added
+    deleteRequest,
     getEquipmentHistory,
     getUserHistory,
     getRequestConditionHistory
