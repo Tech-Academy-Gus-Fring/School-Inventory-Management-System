@@ -1,6 +1,9 @@
 import type { ApiResult } from '@/types/auth';
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  '/api';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -22,6 +25,8 @@ const buildUrl = (path: string): string => {
   }
   return `${API_BASE}${normalizedPath}`;
 };
+
+export const buildApiUrl = (path: string): string => buildUrl(path);
 
 export const apiRequest = async <T>(path: string, options: RequestOptions = {}): Promise<ApiResult<T>> => {
   try {

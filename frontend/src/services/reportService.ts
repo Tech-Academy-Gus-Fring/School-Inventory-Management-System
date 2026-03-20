@@ -1,4 +1,4 @@
-import { apiRequest } from '@/services/apiClient';
+import { apiRequest, buildApiUrl } from '@/services/apiClient';
 import type { ApiResult } from '@/types/auth';
 
 export interface UsageReportItem {
@@ -19,8 +19,9 @@ export const getFullHistoryReport = async (token: string): Promise<ApiResult<{ g
 };
 
 export const downloadHistoryCSV = async (token: string): Promise<void> => {
-  const res = await fetch(`/api/reports/export`, {
-    headers: { 'Authorization': `Bearer ${token}` }
+  const res = await fetch(buildApiUrl('/reports/export'), {
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: 'include',
   });
   if (res.ok) {
     const blob = await res.blob();

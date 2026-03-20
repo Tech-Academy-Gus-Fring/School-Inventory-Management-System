@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import AuthPage from '@/pages/AuthPage';
+import AdminLoginPage from '@/pages/AdminLoginPage';
+import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import DashboardPage from '@/pages/DashboardPage';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -26,6 +28,10 @@ const App: React.FC = () => {
         }
       />
       <Route
+        path="/admin/login"
+        element={<AdminLoginPage />}
+      />
+      <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
@@ -37,7 +43,7 @@ const App: React.FC = () => {
         path="/admin/dashboard"
         element={
           <ProtectedRoute>
-            <DashboardPage />
+            <AdminDashboardPage />
           </ProtectedRoute>
         }
       />
