@@ -48,7 +48,6 @@ export class AuthService implements IAuthService {
       return { success: false, error: registerResult.error };
     }
 
-    // Backend returns user on register but no access token; login right after.
     const loginResult = await this.loginWithEmail({
       email: credentials.email,
       password: credentials.password,
@@ -121,7 +120,6 @@ export class AuthService implements IAuthService {
 
     if (!result.success || !result.data) return { success: false, error: result.error };
 
-    // /users/profile returns user payload built from JWT claims.
     return {
       success: true,
       data: {
@@ -134,7 +132,6 @@ export class AuthService implements IAuthService {
   }
 }
 
-// Singleton instance (will be created in app providers)
 let authServiceInstance: AuthService | null = null;
 
 export const getAuthService = (): AuthService => {

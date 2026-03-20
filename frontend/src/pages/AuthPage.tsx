@@ -1,9 +1,3 @@
-/**
- * Auth Page (Login/Signup)
- * Main entry point for authentication UI
- * Combines interactive background, theme toggle, and form card
- */
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { InteractiveBackground } from '@/components/auth/InteractiveBackground';
@@ -37,18 +31,13 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'login' }) => 
     signup,
     setError,
   } = useAuthStore();
-  const cardRef      = useRef<HTMLDivElement>(null);
-  const prevHeight   = useRef<number>(0);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const prevHeight = useRef<number>(0);
   const cleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const activeView: ViewKey = showForgotPassword ? 'forgot' : (mode as ViewKey);
 
-  /**
-   * 1. Capture current pixel height and lock it on the card BEFORE React re-renders.
-   * 2. Immediately apply the state change — React will insert new content with the
-   *    card still clamped at the old height (overflow:hidden keeps it invisible).
-   * 3. useEffect (below) fires after paint and animates old → new height.
-   */
+
   const switchView = useCallback((apply: () => void) => {
     const el = cardRef.current;
     if (el) {
@@ -64,7 +53,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ defaultMode = 'login' }) => 
     setMode(defaultMode);
   }, [defaultMode, setMode]);
 
-  /** After React paints the new content, animate from the locked old height to the new natural height. */
   useEffect(() => {
     const el = cardRef.current;
     if (!el || prevHeight.current === 0) return;

@@ -43,6 +43,12 @@ export const apiRequest = async <T>(path: string, options: RequestOptions = {}):
     const payload = (await response.json().catch(() => ({}))) as Record<string, unknown>;
 
     if (!response.ok) {
+      if (response.status === 401) {
+        localStorage.removeItem('sims_auth_session');
+        if (window.location.pathname !== '/auth') {
+          window.location.href = '/auth?expired=true';
+        }
+      }
       const errorPayload = payload as ErrorPayload;
       return {
         success: false,

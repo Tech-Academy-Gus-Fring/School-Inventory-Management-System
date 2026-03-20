@@ -60,3 +60,25 @@ export const deleteBorrowRequest = async (
     token,
   });
 };
+
+export const getAllRequestsAdmin = async (token: string): Promise<ApiResult<{ requests: BorrowRequest[] }>> => {
+  return apiRequest<{ requests: BorrowRequest[] }>('/request', {
+    method: 'GET',
+    token,
+  });
+};
+
+export const approveRequest = async (token: string, requestId: number): Promise<ApiResult<{ message: string; request: BorrowRequest }>> => {
+  return apiRequest<{ message: string; request: BorrowRequest }>(`/request/${requestId}/approve`, {
+    method: 'PUT',
+    token,
+  });
+};
+
+export const rejectRequest = async (token: string, requestId: number, reason?: string): Promise<ApiResult<{ message: string; request: BorrowRequest }>> => {
+  return apiRequest<{ message: string; request: BorrowRequest }>(`/request/${requestId}/reject`, {
+    method: 'PUT',
+    token,
+    body: { reason },
+  });
+};

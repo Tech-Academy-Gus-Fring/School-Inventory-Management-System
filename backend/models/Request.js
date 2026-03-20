@@ -23,6 +23,14 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id'
       }
     },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+      validate: {
+        min: 1
+      }
+    },
     request_date: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -86,6 +94,11 @@ module.exports = (sequelize, DataTypes) => {
     Request.belongsTo(models.User, {
       foreignKey: 'approved_by',
       as: 'approver'
+    });
+
+    Request.hasMany(models.ReturnConditionLog, {
+      foreignKey: 'request_id',
+      as: 'conditionLogs'
     });
   };
 

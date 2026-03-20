@@ -1,4 +1,4 @@
-const { Equipment, Request, User } = require('../../models');
+const { Equipment, Request, User, ReturnConditionLog } = require('../../models');
 const { Op } = require('sequelize');
 
 const getEquipmentById = async (id) => {
@@ -6,37 +6,50 @@ const getEquipmentById = async (id) => {
 };
 
 const getAllEquipment = async (filters) => {
-    const { search, type, status } = filters;
+    const { search, type, status, condition } = filters;
     let whereClause = {};
 
     if (search) {
         whereClause[Op.or] = [
             { name: { [Op.iLike]: `%${search}%` } },
+            { type: { [Op.iLike]: `%${search}%` } },
             { serial_number: { [Op.iLike]: `%${search}%` } }
         ];
     }
 
     if (type) whereClause.type = type;
     if (status) whereClause.status = status;
+    if (condition) whereClause.condition = condition;
+    if (filters.room_id) whereClause.room_id = filters.room_id;
 
     return await Equipment.findAll({ where: whereClause });
 };
 
 const createEquipment = async (data) => {
-    return await Equipment.create(data);
+    const equipment = await Equipment.create(data);
+    
+    // Log initial condition
+    if (equipment.condition) {
+        await ReturnConditionLog.create({
+            equipment_id: equipment.id,
+            condition: equipment.condition,
+            notes: 'Initial registration',
+            recorded_at: new Date()
+        });
+    }
+    
+    return equipment;
 };
 
 const updateEquipment = async (id, data) => {
     const equipment = await Equipment.findByPk(id);
     if (!equipment) return null;
-    
     return await equipment.update(data);
 };
 
 const updateEquipmentStatus = async (id, status) => {
     const equipment = await Equipment.findByPk(id);
     if (!equipment) return null;
-    
     return await equipment.update({ status });
 };
 
@@ -52,7 +65,7 @@ const deleteEquipment = async (id) => {
     return true;
 };
 
-// BE-015: Текущи заявки на потребителя
+// BE-015: Текущи заявки на потребителя (използва се в equipmentController)
 const getUserRequests = async (userId) => {
     try {
         return await Request.findAll({
@@ -69,7 +82,7 @@ const getUserRequests = async (userId) => {
     }
 };
 
-// BE-016: Всички заявки за админ панела
+// BE-016: Всички заявки за админ панела с филтри
 const getAllRequestsAdmin = async (filters) => {
     const { status, user_id, equipment_id, startDate, endDate } = filters;
     let whereClause = {};
@@ -90,7 +103,12 @@ const getAllRequestsAdmin = async (filters) => {
             {
                 model: Equipment,
                 as: 'equipment',
-                attributes: ['id', 'name', 'serial_number']
+                attributes: ['id', 'name', 'serial_number'],
+                include: [{
+                    model: Room,
+                    as: 'room',
+                    attributes: ['id', 'name']
+                }]
             },
             {
                 model: User,
@@ -102,7 +120,7 @@ const getAllRequestsAdmin = async (filters) => {
     });
 };
 
-// Метод за създаване на нова заявка
+// Помощен метод за създаване на заявка (ако се вика от equipmentController)
 const createRequest = async (requestData) => {
     return await Request.create({
         user_id: requestData.user_id,
@@ -110,6 +128,31 @@ const createRequest = async (requestData) => {
         request_date: new Date(),
         status: 'pending',
         notes: requestData.notes || ''
+    });
+};
+
+const getEquipmentConditionHistory = async (equipmentId) => {
+    const equipment = await Equipment.findByPk(equipmentId);
+    if (!equipment) {
+        throw new Error('Equipment not found');
+    }
+
+    return await ReturnConditionLog.findAll({
+        where: { equipment_id: equipmentId },
+        include: [
+            {
+                model: Request,
+                as: 'request',
+                attributes: ['id', 'user_id', 'quantity', 'request_date', 'due_date', 'return_date', 'status'],
+                include: [{ model: User, as: 'user', attributes: ['username'] }]
+            },
+            {
+                model: Equipment,
+                as: 'equipment',
+                attributes: ['id', 'name', 'type', 'serial_number']
+            }
+        ],
+        order: [['recorded_at', 'DESC'], ['created_at', 'DESC']]
     });
 };
 
@@ -122,5 +165,6 @@ module.exports = {
     deleteEquipment,
     getUserRequests,
     getAllRequestsAdmin,
-    createRequest
+    createRequest,
+    getEquipmentConditionHistory
 };

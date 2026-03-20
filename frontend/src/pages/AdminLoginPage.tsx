@@ -35,7 +35,6 @@ const AdminLoginPage: React.FC = () => {
     const success = await login(email, password);
     if (!success) return;
 
-    // Read the latest user from store after login resolves to avoid stale closure values.
     const currentUser = useAuthStore.getState().user;
     if (currentUser?.role !== 'admin') {
       await logout();

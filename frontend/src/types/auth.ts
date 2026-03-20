@@ -50,12 +50,18 @@ export interface Equipment {
   location: string | null;
   photo_url: string | null;
   quantity: number;
+  room_id: number | null;
+  room?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface BorrowRequest {
   id: number;
   user_id: number;
   equipment_id: number;
+  quantity: number;
   request_date: string;
   due_date: string | null;
   return_date: string | null;
@@ -65,6 +71,7 @@ export interface BorrowRequest {
   return_condition?: string | null;
   return_notes?: string | null;
   equipment?: Equipment;
+  user?: Pick<User, 'id' | 'username' | 'email'>;
 }
 
 export type AuthMode = 'login' | 'signup';

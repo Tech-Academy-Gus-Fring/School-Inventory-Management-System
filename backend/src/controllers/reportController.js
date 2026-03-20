@@ -1,0 +1,102 @@
+const requestService = require('../services/requestService');
+const { Parser } = require('json2csv');
+
+/**
+ * BE-022: Usage Report
+ */
+const getUsageReport = async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        const report = await requestService.getUsageReport({ startDate, endDate });
+        
+        // Flatten for frontend
+        const flatData = report.map(item => ({
+            name: item.equipment?.name || `ID ${item.equipment_id}`,
+            borrowCount: parseInt(item.getDataValue('total_requests') || 0)
+        }));
+
+        return res.status(200).json({ generated_at: new Date(), data: flatData });
+    } catch (error) {
+        console.error('Usage Report Error:', error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+/**
+ * BE-023: History Report
+ */
+const getHistoryReport = async (req, res) => {
+    try {
+        const report = await requestService.getHistoryReport(req.query);
+        const flatData = report.map(item => ({
+            id: item.id,
+            request_date: item.request_date,
+            status: item.status,
+            quantity: item.quantity,
+            equipment: item.equipment?.name || 'N/A',
+            user: item.user?.username || 'Unknown'
+        }));
+        return res.status(200).json({ generated_at: new Date(), data: flatData });
+    } catch (error) {
+        console.error('History Report Error:', error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+/**
+ * BE-024: Export Report to CSV
+ */
+const exportReport = async (req, res) => {
+    try {
+        const report = await requestService.getHistoryReport(req.query);
+
+        const fields = ['id', 'request_date', 'status', 'quantity', 'equipment_name', 'requested_by'];
+        if (report.length === 0) {
+            const json2csvParser = new Parser({ fields });
+            const csv = json2csvParser.parse([]); // Header only
+            res.header('Content-Type', 'text/csv');
+            res.attachment(`inventory_report_empty_${new Date().getTime()}.csv`);
+            return res.send(csv);
+        }
+
+        const data = report.map(item => ({
+            id: item.id,
+            request_date: item.request_date,
+            status: item.status,
+            quantity: item.quantity,
+            equipment_name: item.equipment?.name || 'N/A',
+            requested_by: item.user?.username || 'Unknown'
+        }));
+
+        const json2csvParser = new Parser({ fields });
+        const csv = json2csvParser.parse(data);
+
+        res.header('Content-Type', 'text/csv');
+        res.attachment(`inventory_report_${new Date().getTime()}.csv`);
+        return res.send(csv);
+
+    } catch (error) {
+        console.error('Export Error:', error);
+        return res.status(500).json({ message: "Export failed" });
+    }
+};
+
+/**
+ * Reset History
+ */
+const clearHistory = async (req, res) => {
+    try {
+        await requestService.clearHistoryData();
+        return res.status(200).json({ message: "History cleared successfully" });
+    } catch (error) {
+        console.error('Clear History Error:', error);
+        return res.status(500).json({ message: "Failed to clear history" });
+    }
+};
+
+module.exports = {
+    getUsageReport,
+    getHistoryReport,
+    exportReport,
+    clearHistory
+};

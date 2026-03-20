@@ -27,22 +27,27 @@ const createUser = async (req, res) => {
             });
         }
 
-        const normalizedEmail = email.trim().toLowerCase();
-        const normalizedUsername = username.trim();
-        const normalizedRole = role.trim().toLowerCase();
-
         // Validate role
         const validRoles = ['student', 'teacher', 'admin'];
-        if (!validRoles.includes(normalizedRole)) {
+        if (!validRoles.includes(role)) {
             return res.status(400).json({
                 message: `Invalid role. Allowed values: ${validRoles.join(', ')}`
             });
         }
 
+        if (password.length < 8) {
+            return res.status(400).json({
+                message: "Password must be at least 8 characters long"
+            });
+        }
+
+        const normalizedUsername = username.trim();
+        const normalizedEmail = email.trim().toLowerCase();
+
         // Check if user already exists
         const existingUser = await User.findOne({
             where: {
-                [Op.or]: [
+                [require('sequelize').Op.or]: [
                     { email: normalizedEmail },
                     { username: normalizedUsername }
                 ]
@@ -63,7 +68,7 @@ const createUser = async (req, res) => {
             username: normalizedUsername,
             email: normalizedEmail,
             password_hash: hashedPassword,
-            role: normalizedRole
+            role
         });
 
         // Return user without password hash
@@ -75,27 +80,6 @@ const createUser = async (req, res) => {
         });
     } catch (error) {
         console.error('Error creating user:', error);
-        return res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
-
-const deleteUser = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        if (Number(id) === req.user.userId) {
-            return res.status(400).json({ message: 'Admin cannot delete their own account' });
-        }
-
-        const user = await User.findByPk(id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        await user.destroy();
-        return res.status(200).json({ message: `User ${user.username} deleted successfully` });
-    } catch (error) {
-        console.error('Error deleting user:', error);
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 };
@@ -131,4 +115,91 @@ const updateUserRole = async (req, res) => {
     }
 };
 
-module.exports = { listUsers, createUser, deleteUser, updateUserRole };
+const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (String(req.user.userId) === String(id)) {
+            return res.status(400).json({
+                message: 'Admins cannot delete their own account'
+            });
+        }
+
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const deletedUser = {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            role: user.role
+        };
+
+        await user.destroy();
+
+        console.log(`[AUDIT] Admin ${req.user.userId} deleted user ${deletedUser.id} (${deletedUser.role}) at ${new Date().toISOString()}`);
+
+        return res.status(200).json({
+            message: 'User deleted successfully',
+            user: deletedUser
+        });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+const updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { username, email, role } = req.body;
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check for conflicts if username or email is changing
+        if (username || email) {
+            const conflictWhere = {
+                [Op.or]: [],
+                id: { [Op.ne]: id }
+            };
+            if (username) conflictWhere[Op.or].push({ username: username.trim() });
+            if (email) conflictWhere[Op.or].push({ email: email.trim().toLowerCase() });
+
+            if (conflictWhere[Op.or].length > 0) {
+                const existingUser = await User.findOne({ where: conflictWhere });
+                if (existingUser) {
+                    return res.status(409).json({ message: "Username or email already in use" });
+                }
+            }
+        }
+
+        if (username) user.username = username.trim();
+        if (email) user.email = email.trim().toLowerCase();
+        if (role) {
+            const validRoles = ['student', 'teacher', 'admin'];
+            if (validRoles.includes(role)) {
+                user.role = role;
+            }
+        }
+
+        await user.save();
+        return res.status(200).json({
+            message: 'User updated successfully',
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role
+            }
+        });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+module.exports = { listUsers, createUser, updateUserRole, deleteUser, updateUser };

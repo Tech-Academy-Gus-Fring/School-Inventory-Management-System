@@ -21,6 +21,19 @@ const getEquipment = async (req, res) => {
     }
 };
 
+const getConditionHistory = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const logs = await equipmentService.getEquipmentConditionHistory(id);
+        return res.status(200).json(logs);
+    } catch (error) {
+        if (error.message === 'Equipment not found') {
+            return res.status(404).json({ message: error.message });
+        }
+        return res.status(500).json({message: "Internal Server Error"});
+    }
+};
+
 const updateStatus = async (req, res) => {
     try {
         const {id} = req.params;
@@ -38,14 +51,14 @@ const deleteEquipment = async (req, res) => {
         const {id} = req.params;
         const deleted = await equipmentService.deleteEquipment(id);
         if (!deleted) {
-            return res.status(404).json({ message: `Equipment with ID ${id} not found` });
+            return res.status(404).json({message: "Equipment not found"});
         }
         return res.status(200).json({message: "Deleted successfully"});
     } catch (error) {
         if (error.message === 'Cannot delete equipment that is not retired') {
-            return res.status(400).json({ message: error.message });
+            return res.status(400).json({message: error.message});
         }
-        return res.status(500).json({message: "Internal Server Error"});
+        return res.status(500).json({message: error.message});
     }
 };
 
@@ -118,11 +131,29 @@ const createEquipment = async (req, res) => {
     }
 };
 
+const updateEquipment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = req.body;
+        // Basic validation
+        if (data.quantity !== undefined && data.quantity < 0) {
+            return res.status(400).json({ message: "Quantity must be a non-negative number" });
+        }
+        const updatedEquipment = await equipmentService.updateEquipment(id, data);
+        if (!updatedEquipment) return res.status(404).json({ message: "Equipment not found" });
+        return res.status(200).json({ message: "Equipment updated successfully", equipment: updatedEquipment });
+    } catch (error) {
+        console.error("Error updating equipment:", error);
+        return res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
 module.exports = {
     getEquipmentDetails,
     getEquipment,
+    getConditionHistory,
     updateStatus,
     deleteEquipment,
     createEquipment,
-
+    updateEquipment
 }

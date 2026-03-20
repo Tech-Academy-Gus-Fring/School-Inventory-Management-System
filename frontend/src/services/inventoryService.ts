@@ -54,3 +54,9 @@ export const updateEquipmentStatus = async (
     body: { status },
   });
 };
+export const getConditionHistory = async (token: string, equipmentId: number): Promise<ApiResult<any[]>> => {
+  return apiRequest<any[]>(`/equipment/${equipmentId}/condition-history`, {
+    method: 'GET',
+    token,
+  });
+};

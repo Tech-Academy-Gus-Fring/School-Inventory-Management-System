@@ -71,6 +71,18 @@ export const deleteUserAsAdmin = async (token: string, userId: number): Promise<
   });
 };
 
+export const updateUserAsAdmin = async (
+  token: string,
+  userId: number,
+  payload: Partial<AdminCreateUserPayload>,
+): Promise<ApiResult<{ message: string; user: User }>> => {
+  return apiRequest<{ message: string; user: User }>(`/admin/users/${userId}`, {
+    method: 'PUT',
+    token,
+    body: payload,
+  });
+};
+
 export const createEquipmentAsAdmin = async (
   token: string,
   payload: AdminCreateEquipmentPayload,
@@ -121,4 +133,37 @@ export const deleteRequestAsAdmin = async (token: string, requestId: number): Pr
     method: 'DELETE',
     token,
   });
+};
+
+export const returnRequestAsAdmin = async (
+  token: string,
+  requestId: number,
+  condition: 'new' | 'good' | 'fair' | 'damaged',
+  notes?: string,
+): Promise<ApiResult<{ message: string }>> => {
+  return apiRequest<{ message: string }>(`/request/${requestId}/return`, {
+    method: 'PUT',
+    token,
+    body: { condition, notes },
+  });
+};
+
+export const updateEquipmentAsAdmin = async (
+  token: string,
+  equipmentId: number,
+  payload: Partial<AdminCreateEquipmentPayload>,
+): Promise<ApiResult<{ message: string; equipment: any }>> => {
+  return apiRequest<{ message: string; equipment: any }>(`/equipment/${equipmentId}`, {
+    method: 'PUT',
+    token,
+    body: payload,
+  });
+};
+
+export const getAdminEquipmentHistory = async (token: string, id: number): Promise<ApiResult<any>> => {
+  return apiRequest<any>(`/request/history/equipment/${id}`, { method: 'GET', token });
+};
+
+export const getAdminUserHistory = async (token: string, id: number): Promise<ApiResult<any>> => {
+  return apiRequest<any>(`/request/history/users/${id}`, { method: 'GET', token });
 };
