@@ -1,6 +1,6 @@
 ### 1. REGISTER (Ensures Bcrypt hash is created by your code)
 # @name Register
-POST http://localhost:5000/auth/register
+POST http://localhost:5000/api/auth/register
 Content-Type: application/json
 
 {
@@ -14,7 +14,7 @@ Content-Type: application/json
 
 ### 1. LOGIN
 # @name Login
-POST http://localhost:5000/auth/login
+POST http://localhost:5000/api/auth/login
 Content-Type: application/json
 
 {
@@ -31,7 +31,7 @@ Content-Type: application/json
 
 ### 2. SUBMIT BORROW REQUEST
 # @name Create_Request
-POST http://localhost:5000/request
+POST http://localhost:5000/api/requests
 Authorization: Bearer {{authToken}}
 Content-Type: application/json
 
@@ -46,5 +46,5 @@ Content-Type: application/json
 
 ### 3. VIEW MY REQUESTS
 # @name Get_My_Requests
-GET http://localhost:5000/request/my
+GET http://localhost:5000/api/requests/my
 Authorization: Bearer {{authToken}}

@@ -1,6 +1,6 @@
 # All API Requests
 
-Base URL: `http://localhost:5000`
+Base URL: `http://localhost:5000/api`
 
 ## Authentication
 
@@ -8,10 +8,6 @@ Base URL: `http://localhost:5000`
 - `POST /auth/login`
 - `POST /auth/refresh`
 - `POST /auth/logout`
-
-## User
-
-- `GET /users/profile`
 
 ## Admin
 
@@ -40,12 +36,20 @@ Supported `/equipment` query params:
 
 ## Requests
 
-- `POST /request`
-- `GET /request/my`
-- `GET /request/:id/condition-history` (Admin only)
-- `PUT /request/:id/approve`
-- `PUT /request/:id/reject`
-- `PUT /request/:id/return`
+- `POST /requests`
+- `GET /requests/my`
+- `GET /requests/history/equipment/:id` (Admin or teacher only)
+- `GET /requests/history/users/:id` (Admin or teacher only)
+- `GET /requests/:id/condition-history` (Admin only)
+- `PUT /requests/:id/approve`
+- `PUT /requests/:id/reject`
+- `PUT /requests/:id/return`
+
+## Reports
+
+- `GET /reports/usage` (Admin only)
+- `GET /reports/history` (Admin only)
+- `GET /reports/export` (Admin only)
 
 ### Roles
 

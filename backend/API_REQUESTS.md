@@ -1,6 +1,6 @@
 # API Request Examples
 
-Base URL: `http://localhost:5000`
+Base URL: `http://localhost:5000/api`
 
 ## Register
 
@@ -27,14 +27,6 @@ Base URL: `http://localhost:5000`
 ```
 
 ## Profile
-
-`GET /users/profile`
-
-Header:
-
-```text
-Authorization: Bearer <access-token>
-```
 
 ## Create Equipment
 
@@ -66,7 +58,7 @@ Body:
 
 ## Create Borrow Request
 
-`POST /request`
+`POST /requests`
 
 Header:
 
@@ -88,7 +80,7 @@ Body:
 
 ## Approve Request
 
-`PUT /request/1/approve`
+`PUT /requests/1/approve`
 
 Header:
 
@@ -98,7 +90,7 @@ Authorization: Bearer <teacher-or-admin-access-token>
 
 ## Reject Request
 
-`PUT /request/1/reject`
+`PUT /requests/1/reject`
 
 Header:
 
@@ -116,7 +108,7 @@ Body:
 
 ## Return Request
 
-`PUT /request/1/return`
+`PUT /requests/1/return`
 
 Header:
 
@@ -137,7 +129,7 @@ Body:
 
 ## Get Request Condition History
 
-`GET /request/1/condition-history`
+`GET /requests/1/condition-history`
 
 Header:
 
@@ -145,7 +137,7 @@ Header:
 Authorization: Bearer <admin-access-token>
 ```
 
-The backend also accepts a trailing slash here if your client sends `/request/1/condition-history/`.
+The backend also accepts a trailing slash here if your client sends `/requests/1/condition-history/`.
 
 ## Get Equipment Condition History
 
@@ -158,3 +150,53 @@ Authorization: Bearer <admin-access-token>
 ```
 
 The backend also accepts a trailing slash here if your client sends `/equipment/1/condition-history/`.
+
+## Get Equipment Borrowing History
+
+`GET /requests/history/equipment/1`
+
+Header:
+
+```text
+Authorization: Bearer <teacher-or-admin-access-token>
+```
+
+## Get User Borrowing History
+
+`GET /requests/history/users/1`
+
+Header:
+
+```text
+Authorization: Bearer <teacher-or-admin-access-token>
+```
+
+## Usage Report
+
+`GET /reports/usage?startDate=2026-03-01&endDate=2026-03-31`
+
+Header:
+
+```text
+Authorization: Bearer <admin-access-token>
+```
+
+## History Report
+
+`GET /reports/history?status=returned&equipment_id=1`
+
+Header:
+
+```text
+Authorization: Bearer <admin-access-token>
+```
+
+## Export History Report CSV
+
+`GET /reports/export?status=returned`
+
+Header:
+
+```text
+Authorization: Bearer <admin-access-token>
+```

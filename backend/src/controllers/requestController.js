@@ -4,11 +4,20 @@ const submitRequest = async (req, res) => {
     try {
         const { equipment_id, request_date, due_date, notes, quantity = 1 } = req.body;
         const user_id = req.user.userId;
+        const parsedEquipmentId = Number.parseInt(equipment_id, 10);
 
         const start = new Date(request_date);
         const end = new Date(due_date);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
+
+        if (!Number.isInteger(parsedEquipmentId) || parsedEquipmentId < 1) {
+            return res.status(400).json({ message: 'A valid equipment_id is required' });
+        }
+
+        if (!request_date || !due_date || Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+            return res.status(400).json({ message: 'Valid request_date and due_date values are required' });
+        }
 
         if (start < today) {
             return res.status(400).json({ message: 'Borrow date cannot be in the past' });
@@ -24,7 +33,7 @@ const submitRequest = async (req, res) => {
 
         const newRequest = await requestService.createBorrowRequest({
             user_id,
-            equipment_id,
+            equipment_id: parsedEquipmentId,
             quantity,
             request_date,
             due_date,
