@@ -2,7 +2,13 @@ const { Equipment, Request, User, ReturnConditionLog, Room } = require('../../mo
 const { Op } = require('sequelize');
 
 const getEquipmentById = async (id) => {
-    return await Equipment.findByPk(id);
+    return await Equipment.findByPk(id, {
+        include: [{
+            model: Room,
+            as: 'room',
+            attributes: ['id', 'name']
+        }]
+    });
 };
 
 const getAllEquipment = async (filters) => {
@@ -22,7 +28,24 @@ const getAllEquipment = async (filters) => {
     if (condition) whereClause.condition = condition;
     if (filters.room_id) whereClause.room_id = filters.room_id;
 
-    return await Equipment.findAll({ where: whereClause });
+    return await Equipment.findAll({
+        where: whereClause,
+        attributes: [
+            'id',
+            'name',
+            'type',
+            'serial_number',
+            'condition',
+            'status',
+            'location',
+            'photo_url',
+            'quantity',
+            'room_id',
+            'created_at',
+            'updated_at'
+        ],
+        order: [['updated_at', 'DESC'], ['id', 'DESC']]
+    });
 };
 
 const createEquipment = async (data) => {
@@ -70,11 +93,28 @@ const getUserRequests = async (userId) => {
     try {
         return await Request.findAll({
             where: { user_id: userId },
+            attributes: [
+                'id',
+                'user_id',
+                'equipment_id',
+                'quantity',
+                'request_date',
+                'due_date',
+                'return_date',
+                'status',
+                'notes',
+                'approved_by',
+                'return_condition',
+                'return_notes',
+                'created_at',
+                'updated_at'
+            ],
             include: [{
                 model: Equipment,
                 as: 'equipment',
                 attributes: ['id', 'name', 'type', 'serial_number']
-            }]
+            }],
+            order: [['created_at', 'DESC']]
         });
     } catch (error) {
         console.error("Database error in getUserRequests:", error);
@@ -99,6 +139,22 @@ const getAllRequestsAdmin = async (filters) => {
 
     return await Request.findAll({
         where: whereClause,
+        attributes: [
+            'id',
+            'user_id',
+            'equipment_id',
+            'quantity',
+            'request_date',
+            'due_date',
+            'return_date',
+            'status',
+            'notes',
+            'approved_by',
+            'return_condition',
+            'return_notes',
+            'created_at',
+            'updated_at'
+        ],
         include: [
             {
                 model: Equipment,
@@ -139,17 +195,13 @@ const getEquipmentConditionHistory = async (equipmentId) => {
 
     return await ReturnConditionLog.findAll({
         where: { equipment_id: equipmentId },
+        attributes: ['id', 'request_id', 'equipment_id', 'condition', 'notes', 'recorded_at', 'created_at'],
         include: [
             {
                 model: Request,
                 as: 'request',
                 attributes: ['id', 'user_id', 'quantity', 'request_date', 'due_date', 'return_date', 'status'],
                 include: [{ model: User, as: 'user', attributes: ['username'] }]
-            },
-            {
-                model: Equipment,
-                as: 'equipment',
-                attributes: ['id', 'name', 'type', 'serial_number']
             }
         ],
         order: [['recorded_at', 'DESC'], ['created_at', 'DESC']]

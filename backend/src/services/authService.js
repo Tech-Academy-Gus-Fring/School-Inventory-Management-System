@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const db = require("../../models");
-const { Op } = require("sequelize");
 const { User, RefreshToken } = db;
 
 const SALT_ROUNDS = 10;
@@ -118,13 +117,22 @@ const loginUser = async ({ email, username, password }) => {
 
     if (email) {
         const normalizedEmail = email.trim().toLowerCase();
-        whereClause.email = { [Op.iLike]: normalizedEmail };
+        whereClause = db.Sequelize.where(
+            db.Sequelize.fn('LOWER', db.Sequelize.col('email')),
+            normalizedEmail
+        );
     } else {
-        const trimmedUsername = username.trim();
-        whereClause.username = { [Op.iLike]:trimmedUsername };
+        const normalizedUsername = username.trim().toLowerCase();
+        whereClause = db.Sequelize.where(
+            db.Sequelize.fn('LOWER', db.Sequelize.col('username')),
+            normalizedUsername
+        );
     }
 
-    const user = await User.findOne({ where: whereClause });
+    const user = await User.findOne({
+        where: whereClause,
+        attributes: ['id', 'username', 'email', 'role', 'password_hash', 'created_at']
+    });
 
     if (!user) {
         const error = new Error("Invalid credentials");
@@ -178,9 +186,11 @@ const refreshAccessToken = async (refreshToken) => {
     // Find refresh token in database
     const tokenRecord = await RefreshToken.findOne({
         where: { token: refreshToken },
+        attributes: ['id', 'user_id', 'token', 'expires_at'],
         include: [{
             model: User,
-            as: 'user'
+            as: 'user',
+            attributes: ['id', 'username', 'email', 'role']
         }]
     });
 

@@ -28,36 +28,20 @@ This project is now structured as a **microservices backend** with a React front
 
 ## Run Locally (Microservices Mode)
 
-1. Start PostgreSQL (recommended via Docker):
-```bash
-cd backend
-docker compose up -d postgres
-```
+### One Command Startup (Recommended)
 
-2. Install backend deps:
+From project root:
 ```bash
-cd backend
-npm install
-```
-
-3. Prepare database schema and demo data:
-```bash
-cd backend
-npm run db:setup
-```
-
-4. Start all services + gateway:
-```bash
-cd backend
-npm run microservices:start
-```
-
-5. Start frontend:
-```bash
-cd frontend
-npm install
 npm run dev
 ```
+
+This command does everything automatically:
+- starts PostgreSQL container
+- installs backend/frontend dependencies
+- runs backend migrations
+- seeds demo data only if DB is empty
+- starts backend microservices + gateway
+- starts frontend dev server
 
 Frontend will call `http://127.0.0.1:5000/api/*` through proxy.
 
@@ -82,6 +66,13 @@ This starts:
 - PostgreSQL
 - all backend services
 - API gateway
+
+## Database Reset
+
+If you want a clean database with fresh demo data:
+```bash
+npm run db:reset
+```
 
 ## Environment Variables
 

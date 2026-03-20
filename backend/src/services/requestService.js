@@ -48,6 +48,22 @@ const createBorrowRequest = async (requestData) => {
 const getMyRequests = async (userId) => {
     return Request.findAll({
         where: { user_id: userId },
+        attributes: [
+            'id',
+            'user_id',
+            'equipment_id',
+            'quantity',
+            'request_date',
+            'due_date',
+            'return_date',
+            'status',
+            'notes',
+            'approved_by',
+            'return_condition',
+            'return_notes',
+            'created_at',
+            'updated_at'
+        ],
         include: [{ 
             model: Equipment, 
             as: 'equipment',
@@ -127,50 +143,72 @@ const rejectRequest = async (requestId, rejectorId, reason) => {
  * User: Returns equipment
  */
 const returnRequest = async (requestId, userId, condition, notes, actorRole) => {
-    const request = await Request.findByPk(requestId, {
-        include: [{ model: Equipment, as: 'equipment' }]
-    });
-
-    if (!request) {
-        const error = new Error('Request not found');
-        error.statusCode = 404;
-        throw error;
-    }
-
-    // Admins and teachers can return any request; students can only return their own
-    const isPrivileged = actorRole === 'admin' || actorRole === 'teacher';
-    if (!isPrivileged && request.user_id !== userId) {
-        throw new Error('You can only return your own requests');
-    }
-
-    if (request.status !== 'approved') {
-        throw new Error('Only approved requests can be returned');
-    }
-
-    request.status = 'returned';
-    request.return_date = new Date();
-    if (condition) request.return_condition = condition;
-    if (notes) request.return_notes = notes;
-    await request.save();
-    
-    // BE-024: Create historical condition log
-    if (condition) {
-        await ReturnConditionLog.create({
-            request_id: request.id,
-            equipment_id: request.equipment_id,
-            condition: condition,
-            notes: notes || 'Returned',
-            recorded_at: new Date()
+    return sequelize.transaction(async (transaction) => {
+        const request = await Request.findByPk(requestId, {
+            attributes: [
+                'id',
+                'user_id',
+                'equipment_id',
+                'quantity',
+                'request_date',
+                'due_date',
+                'return_date',
+                'status',
+                'notes',
+                'approved_by',
+                'return_condition',
+                'return_notes',
+                'created_at',
+                'updated_at'
+            ],
+            include: [{
+                model: Equipment,
+                as: 'equipment',
+                attributes: ['id', 'name', 'type', 'serial_number', 'condition', 'status', 'quantity'],
+                required: true
+            }],
+            transaction,
+            lock: transaction.LOCK.UPDATE
         });
-    }
 
-    // Restore equipment quantity and update condition/status
-    request.equipment.quantity += request.quantity;
-    request.equipment.status = 'available';
-    if (condition) request.equipment.condition = condition;
-    await request.equipment.save();
+        if (!request) {
+            const error = new Error('Request not found');
+            error.statusCode = 404;
+            throw error;
+        }
 
-    return request;
+        const isPrivileged = actorRole === 'admin' || actorRole === 'teacher';
+        if (!isPrivileged && request.user_id !== userId) {
+            throw new Error('You can only return your own requests');
+        }
+
+        if (request.status !== 'approved') {
+            throw new Error('Only approved requests can be returned');
+        }
+
+        request.status = 'returned';
+        request.return_date = new Date();
+        if (condition) request.return_condition = condition;
+        if (notes) request.return_notes = notes;
+        await request.save({ transaction });
+
+        if (condition) {
+            await ReturnConditionLog.create({
+                request_id: request.id,
+                equipment_id: request.equipment_id,
+                condition,
+                notes: notes || 'Returned',
+                recorded_at: new Date()
+            }, { transaction });
+        }
+
+        request.equipment.quantity += request.quantity;
+        request.equipment.status = 'available';
+        if (condition) request.equipment.condition = condition;
+        await request.equipment.save({ transaction });
+
+        return request;
+    });
 };
 
 /**
@@ -269,6 +307,22 @@ const getAllRequestsAdmin = async (filters = {}) => {
 
     return await Request.findAll({
         where: whereClause,
+        attributes: [
+            'id',
+            'user_id',
+            'equipment_id',
+            'quantity',
+            'request_date',
+            'due_date',
+            'return_date',
+            'status',
+            'notes',
+            'approved_by',
+            'return_condition',
+            'return_notes',
+            'created_at',
+            'updated_at'
+        ],
         include: [
             { 
                 model: Equipment, 
@@ -309,6 +363,22 @@ const deleteRequest = async (requestId, actorId, actorRole) => {
 const getEquipmentHistory = async (equipmentId) => {
     return await Request.findAll({
         where: { equipment_id: equipmentId },
+        attributes: [
+            'id',
+            'user_id',
+            'equipment_id',
+            'quantity',
+            'request_date',
+            'due_date',
+            'return_date',
+            'status',
+            'notes',
+            'approved_by',
+            'return_condition',
+            'return_notes',
+            'created_at',
+            'updated_at'
+        ],
         include: [
             { model: User, as: 'user', attributes: ['username', 'email'] },
             { model: User, as: 'approver', attributes: ['username'] }
@@ -320,6 +390,22 @@ const getEquipmentHistory = async (equipmentId) => {
 const getUserHistory = async (userId) => {
     return await Request.findAll({
         where: { user_id: userId },
+        attributes: [
+            'id',
+            'user_id',
+            'equipment_id',
+            'quantity',
+            'request_date',
+            'due_date',
+            'return_date',
+            'status',
+            'notes',
+            'approved_by',
+            'return_condition',
+            'return_notes',
+            'created_at',
+            'updated_at'
+        ],
         include: [
             { model: Equipment, as: 'equipment', attributes: ['name', 'serial_number'] },
             { model: User, as: 'approver', attributes: ['username'] }
@@ -336,6 +422,7 @@ const getRequestConditionHistory = async (requestId) => {
 
     return await ReturnConditionLog.findAll({
         where: { request_id: requestId },
+        attributes: ['id', 'request_id', 'equipment_id', 'condition', 'notes', 'recorded_at', 'created_at'],
         include: [
             {
                 model: Request,
