@@ -1,5 +1,5 @@
-const { Equipment, Request, User, ReturnConditionLog, Room } = require('../../models');
-const { Op } = require('sequelize');
+const {Equipment, Request, User, ReturnConditionLog, Room} = require('../../models');
+const {Op} = require('sequelize');
 
 const getEquipmentById = async (id) => {
     return await Equipment.findByPk(id, {
@@ -12,14 +12,14 @@ const getEquipmentById = async (id) => {
 };
 
 const getAllEquipment = async (filters, pagination = null) => {
-    const { search, type, status, condition } = filters;
+    const {search, type, status, condition} = filters;
     let whereClause = {};
 
     if (search) {
         whereClause[Op.or] = [
-            { name: { [Op.iLike]: `%${search}%` } },
-            { type: { [Op.iLike]: `%${search}%` } },
-            { serial_number: { [Op.iLike]: `%${search}%` } }
+            {name: {[Op.iLike]: `%${search}%`}},
+            {type: {[Op.iLike]: `%${search}%`}},
+            {serial_number: {[Op.iLike]: `%${search}%`}}
         ];
     }
 
@@ -60,7 +60,7 @@ const getAllEquipment = async (filters, pagination = null) => {
 
 const createEquipment = async (data) => {
     const equipment = await Equipment.create(data);
-    
+
     // Log initial condition
     if (equipment.condition) {
         await ReturnConditionLog.create({
@@ -70,7 +70,7 @@ const createEquipment = async (data) => {
             recorded_at: new Date()
         });
     }
-    
+
     return equipment;
 };
 
@@ -83,7 +83,7 @@ const updateEquipment = async (id, data) => {
 const updateEquipmentStatus = async (id, status) => {
     const equipment = await Equipment.findByPk(id);
     if (!equipment) return null;
-    return await equipment.update({ status });
+    return await equipment.update({status});
 };
 
 const deleteEquipment = async (id) => {
@@ -102,7 +102,7 @@ const deleteEquipment = async (id) => {
 const getUserRequests = async (userId, pagination = null) => {
     try {
         const queryOptions = {
-            where: { user_id: userId },
+            where: {user_id: userId},
             attributes: [
                 'id',
                 'user_id',
@@ -145,13 +145,13 @@ const getUserRequests = async (userId, pagination = null) => {
 
 // BE-016: Всички заявки за админ панела с филтри
 const getAllRequestsAdmin = async (filters, pagination = null) => {
-    const { status, user_id, equipment_id, startDate, endDate } = filters;
+    const {status, user_id, equipment_id, startDate, endDate} = filters;
     let whereClause = {};
 
     if (status) whereClause.status = status;
     if (user_id) whereClause.user_id = user_id;
     if (equipment_id) whereClause.equipment_id = equipment_id;
-    
+
     if (startDate || endDate) {
         whereClause.request_date = {};
         if (startDate) whereClause.request_date[Op.gte] = new Date(startDate);
@@ -226,14 +226,14 @@ const getEquipmentConditionHistory = async (equipmentId, pagination = null) => {
     }
 
     const queryOptions = {
-        where: { equipment_id: equipmentId },
+        where: {equipment_id: equipmentId},
         attributes: ['id', 'request_id', 'equipment_id', 'condition', 'notes', 'recorded_at', 'created_at'],
         include: [
             {
                 model: Request,
                 as: 'request',
                 attributes: ['id', 'user_id', 'quantity', 'request_date', 'due_date', 'return_date', 'status'],
-                include: [{ model: User, as: 'user', attributes: ['username'] }]
+                include: [{model: User, as: 'user', attributes: ['username']}]
             }
         ],
         order: [['recorded_at', 'DESC'], ['created_at', 'DESC']]
@@ -251,9 +251,9 @@ const getEquipmentConditionHistory = async (equipmentId, pagination = null) => {
     });
 };
 
-module.exports = { 
-    getEquipmentById, 
-    getAllEquipment, 
+module.exports = {
+    getEquipmentById,
+    getAllEquipment,
     createEquipment,
     updateEquipment,
     updateEquipmentStatus,

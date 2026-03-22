@@ -1,10 +1,29 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../../.env') });
+require('dotenv').config({path: path.join(__dirname, '../../.env')});
 
 const express = require('express');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const {createProxyMiddleware} = require('http-proxy-middleware');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
+
+app.use(express.json());
+
+const generalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {message: "Too many requests, please try again later."}
+});
+
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {message: "Too many login attempts. Please wait 15 minutes."}
+});
 
 const services = {
     auth: process.env.AUTH_SERVICE_URL || `http://127.0.0.1:${process.env.AUTH_SERVICE_PORT || 5001}`,
@@ -16,11 +35,18 @@ const services = {
     spatial: process.env.SPATIAL_SERVICE_URL || `http://127.0.0.1:${process.env.SPATIAL_SERVICE_PORT || 5007}`
 };
 
-const proxy = (target, servicePrefix) => createProxyMiddleware({
+const proxy = (target, prefixToRemove) => createProxyMiddleware({
     target,
     changeOrigin: true,
-    xfwd: true,
-    pathRewrite: (path) => `${servicePrefix}${path}`
+    pathRewrite: {[`^${prefixToRemove}`]: ''},
+    onProxyReq: (proxyReq, req, res) => {
+        if (req.body) {
+            const bodyData = JSON.stringify(req.body);
+            proxyReq.setHeader('Content-Type', 'application/json');
+            proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+            proxyReq.write(bodyData);
+        }
+    }
 });
 
 app.get('/health', (_req, res) => {
@@ -40,14 +66,15 @@ app.get('/health', (_req, res) => {
     });
 });
 
-app.use('/api/auth', proxy(services.auth, '/api/auth'));
-app.use('/api/users', proxy(services.user, '/api/users'));
-app.use('/api/admin', proxy(services.admin, '/api/admin'));
-app.use('/api/equipment', proxy(services.equipment, '/api/equipment'));
-app.use('/api/request', proxy(services.request, '/api/request'));
-app.use('/api/requests', proxy(services.request, '/api/requests'));
-app.use('/api/reports', proxy(services.report, '/api/reports'));
-app.use('/api/spatial', proxy(services.spatial, '/api/spatial'));
+app.use('/api/auth', authLimiter, proxy(services.auth, '/api/auth'));
+app.use('/api/users', generalLimiter, proxy(services.user, '/api/users'));
+app.use('/api/admin', generalLimiter, proxy(services.admin, '/api/admin'));
+app.use('/api/equipment', generalLimiter, proxy(services.equipment, '/api/equipment'));
+app.use('/api/request', generalLimiter, express.json(), proxy(services.request, '/api/request'));
+app.use('/api/requests', generalLimiter, proxy(services.request, '/api/requests'));
+app.use('/api/reports', generalLimiter, proxy(services.report, '/api/reports'));
+app.use('/api/spatial', generalLimiter, proxy(services.spatial, '/api/spatial'));
+
 
 app.get('/', (_req, res) => {
     res.send('School Inventory API Gateway is running.');
