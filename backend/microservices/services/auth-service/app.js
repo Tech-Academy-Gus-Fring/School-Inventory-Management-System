@@ -4,9 +4,9 @@ const authRoutes = require('../../../src/routes/authRoutes');
 const app = createServiceApp({
     serviceName: 'auth-service',
     mountRoutes: (expressApp) => {
-        expressApp.use('/api/auth', authRoutes);
+        // Change this to '/' to avoid nested /api/auth/api/auth issues
+        expressApp.use('/', authRoutes);
     }
 });
 
 module.exports = app;
-

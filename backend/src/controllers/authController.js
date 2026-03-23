@@ -4,10 +4,26 @@ const {
     refreshAccessToken,
     logoutUser
 } = require("../services/authService");
+const {validationResult} = require('express-validator');
+const xss = require('xss');
 
 const register = async (req, res, next) => {
+    console.log("Body received by Auth Service:", req.body);
+    // 1. Catch Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
     try {
-        const user = await registerUser(req.body);
+        // 2. Sanitize Name Fields for XSS
+        const userData = {
+            ...req.body,
+            first_name: xss(req.body.first_name),
+            last_name: xss(req.body.last_name)
+        };
+
+        const user = await registerUser(userData);
 
         return res.status(201).json({
             message: "User registered successfully",
@@ -19,6 +35,12 @@ const register = async (req, res, next) => {
 };
 
 const login = async (req, res, next) => {
+    // 1. Catch Validation Errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
     try {
         const data = await loginUser(req.body);
 
@@ -42,7 +64,6 @@ const login = async (req, res, next) => {
 
 const refresh = async (req, res, next) => {
     try {
-        // Get refresh token from cookie or request body
         const refreshToken = req.cookies.refreshToken || req.body?.refreshToken;
 
         if (!refreshToken) {
@@ -65,7 +86,6 @@ const refresh = async (req, res, next) => {
 
 const logout = async (req, res, next) => {
     try {
-        // Get refresh token from cookie or request body
         const refreshToken = req.cookies.refreshToken || req.body?.refreshToken;
 
         if (!refreshToken) {
@@ -75,8 +95,6 @@ const logout = async (req, res, next) => {
         }
 
         const result = await logoutUser(refreshToken);
-
-        // Clear the refresh token cookie
         res.clearCookie('refreshToken');
 
         return res.status(200).json(result);
