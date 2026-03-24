@@ -34,6 +34,34 @@ const EMPTY_PREVIEW = {
     photo_preview_provider: null
 };
 
+const buildEquipmentQrValue = (equipment) => {
+    if (!equipment || equipment.id == null || !equipment.name || !equipment.type) {
+        return null;
+    }
+
+    const lines = [
+        'School Inventory Management System',
+        `Equipment ID: ${equipment.id}`,
+        `Name: ${equipment.name}`,
+        `Type: ${equipment.type}`,
+        `Status: ${equipment.status || 'unknown'}`
+    ];
+
+    if (equipment.serial_number) {
+        lines.push(`Serial Number: ${equipment.serial_number}`);
+    }
+
+    if (equipment.location) {
+        lines.push(`Location: ${equipment.location}`);
+    }
+
+    if (equipment.room?.name) {
+        lines.push(`Room: ${equipment.room.name}`);
+    }
+
+    return lines.join('\n');
+};
+
 const safeParseUrl = (value) => {
     if (typeof value !== 'string') {
         return null;
@@ -197,7 +225,8 @@ const serializeEquipmentWithPreview = (equipment) => {
 
     return {
         ...plainEquipment,
-        ...getPhotoPreviewMetadata(plainEquipment.photo_url)
+        ...getPhotoPreviewMetadata(plainEquipment.photo_url),
+        qr_code_value: buildEquipmentQrValue(plainEquipment)
     };
 };
 
@@ -206,6 +235,7 @@ const serializeEquipmentCollectionWithPreview = (equipmentItems = []) => {
 };
 
 module.exports = {
+    buildEquipmentQrValue,
     getPhotoPreviewMetadata,
     serializeEquipmentWithPreview,
     serializeEquipmentCollectionWithPreview

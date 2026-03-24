@@ -10,6 +10,7 @@ import { ThemeToggle } from '@/components/auth/ThemeToggle';
 import { InteractiveBackground } from '@/components/auth/InteractiveBackground';
 import { Button } from '@/components/ui/Button';
 import { EquipmentMediaPreview } from '@/components/ui/EquipmentMediaPreview';
+import { EquipmentQrCode } from '@/components/ui/EquipmentQrCode';
 import { Input } from '@/components/ui/Input';
 import { useAuthStore } from '@/stores/authStore';
 import {
@@ -506,6 +507,7 @@ const AdminDashboardPage: React.FC = () => {
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                           <div className="flex gap-3 items-start">
                             <EquipmentMediaPreview item={item} />
+                            <EquipmentQrCode item={item} />
                             <div>
                               <p className="font-semibold text-slate-900 dark:text-slate-100">{item.name}</p>
                               <p className="text-sm text-slate-600 dark:text-slate-400">{item.type} • Qty {item.quantity}</p>
@@ -624,6 +626,7 @@ const AdminDashboardPage: React.FC = () => {
             </div>
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
               <EquipmentMediaPreview item={editEquipmentModal} variant="panel" />
+              <EquipmentQrCode item={editEquipmentModal} variant="panel" />
               <Input label="Name" value={editEquipmentModal.name} onChange={e => setEditEquipmentModal({ ...editEquipmentModal, name: e.target.value })} />
               <Input label="Type" value={editEquipmentModal.type} onChange={e => setEditEquipmentModal({ ...editEquipmentModal, type: e.target.value })} />
               <div>

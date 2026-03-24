@@ -33,6 +33,7 @@ Equipment payloads may also include derived media preview fields:
 - `photo_thumbnail_url`
 - `photo_preview_mode`
 - `photo_preview_provider`
+- `qr_code_value`
 
 Supported `/equipment` query params:
 

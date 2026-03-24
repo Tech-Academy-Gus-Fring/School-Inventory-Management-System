@@ -62,6 +62,7 @@ Equipment responses now also include:
 - `photo_thumbnail_url`: thumbnail URL when one can be generated
 - `photo_preview_mode`: `image`, `iframe`, or `external`
 - `photo_preview_provider`: detected provider such as `cloudinary` or `google-drive`
+- `qr_code_value`: QR-ready equipment payload string for labels and scans
 
 ## Create Borrow Request
 

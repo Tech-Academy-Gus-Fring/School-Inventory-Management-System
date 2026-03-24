@@ -7,6 +7,7 @@ import { ThemeToggle } from '@/components/auth/ThemeToggle';
 import { InteractiveBackground } from '@/components/auth/InteractiveBackground';
 import { Button } from '@/components/ui/Button';
 import { EquipmentMediaPreview } from '@/components/ui/EquipmentMediaPreview';
+import { EquipmentQrCode } from '@/components/ui/EquipmentQrCode';
 import { Input } from '@/components/ui/Input';
 import { useAuthStore } from '@/stores/authStore';
 import { getEquipmentList, getConditionHistory } from '@/services/inventoryService';
@@ -1030,7 +1031,7 @@ const DashboardPage: React.FC = () => {
               <motion.div layoutId={`card-${selectedItem.id}`} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="relative w-full max-w-5xl bg-white dark:bg-[#1d1d1f] rounded-[40px] shadow-2xl overflow-hidden flex flex-col md:flex-row border border-[#d2d2d7] dark:border-[#303030]">
                 <button onClick={() => setSelectedItem(null)} className="absolute top-6 right-6 z-10 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><X size={24} /></button>
                 <div className="w-full md:w-1/2 bg-[#f5f5f7] dark:bg-black p-12 flex items-center justify-center"><Virtual3DModel type={selectedItem.type} quantity={selectedItem.totalQuantity || 1} isExpanded /></div>
-                <div className="w-full md:w-1/2 p-12 flex flex-col">
+                <div className="w-full md:w-1/2 p-12 flex flex-col overflow-y-auto">
                   <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#86868b] mb-4">Specifications</p>
                   <h2 className="text-4xl font-bold mb-8">{selectedItem.name}</h2>
                   <div className="grid grid-cols-2 gap-8 mb-12">
@@ -1038,6 +1039,10 @@ const DashboardPage: React.FC = () => {
                     <div><p className="text-[9px] uppercase font-bold text-[#86868b] mb-1">Type</p><p className="text-sm">{selectedItem.type}</p></div>
                     <div><p className="text-[9px] uppercase font-bold text-[#86868b] mb-1">Status</p><p className="text-sm uppercase font-black">{selectedItem.status}</p></div>
                     <div><p className="text-[9px] uppercase font-bold text-[#86868b] mb-1">Availability</p><p className="text-sm font-bold">{selectedItem.availableQuantity} / {selectedItem.totalQuantity}</p></div>
+                  </div>
+                  <div className="space-y-4 mb-8">
+                    <EquipmentMediaPreview item={selectedItem} variant="panel" />
+                    <EquipmentQrCode item={selectedItem} variant="panel" />
                   </div>
                   <Button className="mt-auto w-full py-8 rounded-[25px] text-xs font-black uppercase tracking-[0.2em]" onClick={() => { if (selectedItem) onQuickBorrow(selectedItem.id); setSelectedItem(null); }} disabled={selectedItem.status !== 'available' || (selectedItem.availableQuantity || 0) <= 0}>Process Claim</Button>
                 </div>
@@ -1060,6 +1065,7 @@ const DashboardPage: React.FC = () => {
             </div>
             <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
               <EquipmentMediaPreview item={editEquipmentModal} variant="panel" />
+              <EquipmentQrCode item={editEquipmentModal} variant="panel" />
               <Input label="Name" value={editEquipmentModal.name} onChange={e => setEditEquipmentModal({ ...editEquipmentModal, name: e.target.value })} />
               <Input label="Type" value={editEquipmentModal.type} onChange={e => setEditEquipmentModal({ ...editEquipmentModal, type: e.target.value })} />
               <div>

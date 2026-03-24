@@ -4,40 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="98e050de-4084-4ab4-b303-e143b3da6b6e" name="Changes" comment="Refactor API route handling, improve service client configuration, and add admin login/dashboard routes.">
+    <list default="true" id="98e050de-4084-4ab4-b303-e143b3da6b6e" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/API_REQUESTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/backend/API_REQUESTS.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/All_API_Requests.md" beforeDir="false" afterPath="$PROJECT_DIR$/backend/All_API_Requests.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/gateway/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/gateway/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/admin-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/admin-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/auth-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/auth-service/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/auth-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/auth-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/equipment-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/equipment-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/report-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/report-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/request-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/request-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/spatial-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/spatial-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/user-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/user-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/node_modules/.package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/adminController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/adminController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/authController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/authController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/equipmentController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/equipmentController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/spatialController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/spatialController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/routes/authRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/authRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/routes/equipmentRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/equipmentRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/routes/requestRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/requestRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/services/equipmentService.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/services/equipmentService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/utils/equipmentMedia.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/utils/equipmentMedia.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/AdminDashboardPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/AdminDashboardPage.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DashboardPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DashboardPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/services/apiClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/apiClient.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/services/requestService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/requestService.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/types/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/types/auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node_modules/.package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/node_modules/.package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -100,56 +75,56 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Docker.backend/docker-compose.microservices.yml: Compose Deployment.executor": "Run",
-    "Docker.backend: Compose Deployment.executor": "Run",
-    "HTTP Request.All in security_test.executor": "Run",
-    "HTTP Request.All in test_equipment.executor": "Run",
-    "HTTP Request.All in test_log.executor": "Run",
-    "HTTP Request.security_test | #2.executor": "Run",
-    "HTTP Request.security_test | #3.executor": "Run",
-    "HTTP Request.security_test | 0. Login to get Token.executor": "Run",
-    "HTTP Request.security_test | 1. LOGIN AS ADMIN.executor": "Run",
-    "HTTP Request.security_test | 2. LOGIN AS STUDENT.executor": "Run",
-    "HTTP Request.test_equipment | Test Get Existing Equipment.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Node.js.app.js.executor": "Run",
-    "Node.js.authService.js.executor": "Run",
-    "Node.js.db.js.executor": "Run",
-    "Node.js.protectedRoutes.js.executor": "Run",
-    "Node.js.server.js.executor": "Run",
-    "Node.js.userRoutes.js.executor": "Run",
-    "RunOnceActivity.MCP Project settings loaded": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "BE-38",
-    "ignore.virus.scanning.warn.message": "true",
-    "javascript.preferred.runtime.type.id": "node",
-    "junie.onboarding.icon.badge.shown": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "ml.llm.LLMConfigurable",
-    "to.speed.mode.migration.done": "true",
-    "ts.external.directory.path": "C:\\Users\\zdrav\\Documents\\GitHub\\School-Inventory-Management-System\\frontend\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Docker.backend/docker-compose.microservices.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.backend: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.All in security_test.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.All in test_equipment.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.All in test_log.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.security_test | #2.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.security_test | #3.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.security_test | 0. Login to get Token.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.security_test | 1. LOGIN AS ADMIN.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.security_test | 2. LOGIN AS STUDENT.executor&quot;: &quot;Run&quot;,
+    &quot;HTTP Request.test_equipment | Test Get Existing Equipment.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Node.js.app.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.authService.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.db.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.protectedRoutes.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.server.js.executor&quot;: &quot;Run&quot;,
+    &quot;Node.js.userRoutes.js.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;BE-38&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;ml.llm.LLMConfigurable&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\zdrav\\Documents\\GitHub\\School-Inventory-Management-System\\frontend\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "postgresql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
     ],
-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "DotEnv"
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;DotEnv&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\OTHER GAMES\stem_classroom_project\School-Inventory-Management-System\backend\microservices\services\auth-service\routes" />

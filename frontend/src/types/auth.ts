@@ -53,6 +53,7 @@ export interface Equipment {
   photo_thumbnail_url?: string | null;
   photo_preview_mode?: 'image' | 'iframe' | 'external' | null;
   photo_preview_provider?: string | null;
+  qr_code_value?: string | null;
   quantity: number;
   room_id: number | null;
   room?: {
