@@ -7,30 +7,8 @@
     <list default="true" id="98e050de-4084-4ab4-b303-e143b3da6b6e" name="Changes" comment="Refactor API route handling, improve service client configuration, and add admin login/dashboard routes.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/microservices/gateway/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/gateway/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/admin-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/admin-service/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/admin-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/admin-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/auth-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/auth-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/equipment-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/equipment-service/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/equipment-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/equipment-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/report-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/report-service/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/report-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/report-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/request-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/request-service/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/request-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/request-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/spatial-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/spatial-service/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/spatial-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/spatial-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/user-service/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/user-service/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/microservices/services/user-service/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/microservices/services/user-service/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/adminController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/adminController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/authController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/authController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/equipmentController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/equipmentController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/controllers/spatialController.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/controllers/spatialController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/routes/authRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/authRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/routes/equipmentRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/equipmentRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/routes/requestRoutes.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/routes/requestRoutes.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/services/equipmentService.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/services/equipmentService.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/services/requestService.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/services/requestService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/DashboardPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/DashboardPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/services/requestService.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/services/requestService.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,7 +98,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "fixes",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",

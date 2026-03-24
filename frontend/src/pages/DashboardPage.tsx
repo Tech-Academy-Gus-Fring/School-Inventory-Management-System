@@ -118,7 +118,7 @@ const DashboardPage: React.FC = () => {
     if (!token) return;
     try {
       setLoadingEquipment(true);
-      const res = await getEquipmentList({ search: searchTerm });
+      const res = await getEquipmentList();
       if (res.success) {
         setEquipment(res.data || []);
       } else setError(res.error || 'Failed to load inventory');
@@ -258,7 +258,7 @@ const DashboardPage: React.FC = () => {
       return;
     }
     fetchData();
-  }, [isAuthenticated, navigate, searchTerm, token, selectedRoomId, currentFloorId]);
+  }, [isAuthenticated, navigate, token]);
 
   const handleCreateFloor = async () => {
     setNewFloorName(`Floor ${floors.length + 1}`);
