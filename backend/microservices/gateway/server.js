@@ -6,12 +6,14 @@ const {createProxyMiddleware} = require('http-proxy-middleware');
 const rateLimit = require('express-rate-limit');
 
 const app = express();
+const isProduction = process.env.NODE_ENV === 'production';
 
 const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: isProduction ? 300 : 5000,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: () => !isProduction,
     message: {message: "Too many requests, please try again later."}
 });
 
