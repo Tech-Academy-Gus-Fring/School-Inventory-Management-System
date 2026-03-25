@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "School Inventory Management API",
-    "description": "Postman collection aligned with the current backend routes and payloads.\n\nAuthentication note:\n- /auth/login returns the access token in JSON and sets the refresh token as an httpOnly cookie.\n- In Postman, keep the cookie jar enabled for /auth/refresh and /auth/logout to work without manually pasting a refresh token.\n- The refreshToken body field is optional fallback input when you already have the token value from another client.",
+    "description": "Postman collection aligned with the current backend routes and payloads.\n\nAuthentication note:\n- /auth/login returns the access token in JSON and sets the refresh token as an httpOnly cookie.\n- In Postman, keep the cookie jar enabled for /auth/refresh and /auth/logout to work without manually pasting a refresh token.\n- The refreshToken body field is optional fallback input when you already have the token value from another client.\n- /auth/forgot-password always returns a generic success message; when email delivery is enabled, copy the raw token from the reset link in the email and paste it into the passwordResetToken collection variable before calling /auth/reset-password.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -17,6 +17,11 @@
     },
     {
       "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "passwordResetToken",
       "value": "",
       "type": "string"
     },
@@ -342,6 +347,60 @@
               "path": [
                 "auth",
                 "refresh"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "description": "Starts the password reset flow. The API always returns the same success message even when the email does not exist. If SMTP is configured, the reset token is delivered inside the website link in the email.",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "description": "Completes the password reset flow. Paste the raw token from the reset email link into the passwordResetToken collection variable before sending this request.",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{passwordResetToken}}\",\n  \"password\": \"NewPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
               ]
             }
           }
