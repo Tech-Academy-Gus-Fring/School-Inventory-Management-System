@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import AuthPage from '@/pages/AuthPage';
+import OAuthCallbackPage from '@/pages/OAuthCallbackPage';
 import DashboardPage from '@/pages/DashboardPage';
+
 import { useAuthStore } from '@/stores/authStore';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -25,16 +27,10 @@ const App: React.FC = () => {
           <AuthPage defaultMode="login" />
         }
       />
+      <Route path="/auth/callback/google" element={<OAuthCallbackPage provider="google" />} />
+      <Route path="/auth/callback/telegram" element={<OAuthCallbackPage provider="telegram" />} />
       <Route
         path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/dashboard"
         element={
           <ProtectedRoute>
             <DashboardPage />
