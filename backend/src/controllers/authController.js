@@ -2,7 +2,9 @@ const {
     registerUser,
     loginUser,
     refreshAccessToken,
-    logoutUser
+    logoutUser,
+    requestPasswordReset,
+    resetPassword: resetPasswordService
 } = require("../services/authService");
 const {validationResult} = require('express-validator');
 const xss = require('xss');
@@ -98,9 +100,44 @@ const logout = async (req, res, next) => {
     }
 };
 
+const forgotPassword = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
+    try {
+        const result = await requestPasswordReset({
+            email: req.body.email
+        });
+
+        return res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const resetPassword = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({errors: errors.array()});
+    }
+
+    try {
+        const result = await resetPasswordService(req.body);
+        res.clearCookie('refreshToken');
+
+        return res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     register,
     login,
     refresh,
     logout,
+    forgotPassword,
+    resetPassword,
 };
