@@ -7,7 +7,6 @@ const {
     exportRowsToGoogleSheet,
     getGoogleSheetsStatus
 } = require('../services/documentProviderService');
-const { createBackupSheet } = require('../services/googleSheetsService');
 const PDFDocument = require('pdfkit');
 const { Parser } = require('json2csv');
 const { resolvePagination, buildPaginationMeta, applyPaginationHeaders } = require('../utils/pagination');
@@ -170,24 +169,67 @@ const exportReport = async (req, res) => {
  */
 const exportToGoogleSheets = async (req, res) => {
     try {
-        const adminEmail = process.env.GOOGLE_SHEET_OWNER_EMAIL || "admin@school.com";
         const inventoryData = await equipmentService.getAllEquipment({}, false);
         const historyData = await requestService.getHistoryReport({}, false);
 
-        // getAllEquipment returns an object { rows, count } if pagination is passed. Oh wait! I passed false. It returns array.
-        const result = await createBackupSheet(
-            adminEmail, 
-            Array.isArray(inventoryData) ? inventoryData : (inventoryData.rows || []), 
-            Array.isArray(historyData) ? historyData : (historyData.rows || [])
-        );
+        const inventoryRows = (Array.isArray(inventoryData) ? inventoryData : (inventoryData.rows || [])).map((item) => [
+            item.id,
+            item.name,
+            item.type,
+            item.status,
+            item.totalQuantity ?? item.total_quantity ?? item.quantity ?? 0,
+            item.availableQuantity ?? item.available_quantity ?? item.quantity ?? 0
+        ]);
+
+        const historyRows = (Array.isArray(historyData) ? historyData : (historyData.rows || [])).map((req) => [
+            req.id,
+            req.request_date,
+            req.status,
+            req.quantity,
+            req.equipment?.name || 'N/A',
+            req.user?.username || 'System'
+        ]);
+
+        const targetSpreadsheetId = process.env.GOOGLE_SHEETS_DEFAULT_SPREADSHEET_ID || undefined;
+
+        const inventoryResult = await exportRowsToGoogleSheet({
+            spreadsheetId: targetSpreadsheetId,
+            sheetName: 'Inventory',
+            headers: ['ID', 'Name', 'Type', 'Status', 'Total Quantity', 'Available Quantity'],
+            rows: inventoryRows,
+            writeMode: 'replace'
+        });
+
+        await exportRowsToGoogleSheet({
+            spreadsheetId: targetSpreadsheetId || inventoryResult.spreadsheetId,
+            sheetName: 'Borrow History',
+            headers: ['ID', 'Request Date', 'Status', 'Quantity', 'Equipment', 'Requested By'],
+            rows: historyRows,
+            writeMode: 'replace'
+        });
 
         return res.status(200).json({ 
-            message: result.mock ? "Mock backup completed (no credentials)" : "Google Sheets backup created successfully",
-            url: result.url 
+            message: "Google Sheets backup created successfully",
+            url: inventoryResult.spreadsheetUrl
         });
     } catch (error) {
         console.error('Google Sheets Export Error:', error);
-        return res.status(500).json({ message: "Backup to Google Sheets failed" });
+        const googleSheetsStatus = getGoogleSheetsStatus();
+        const statusCode = error.statusCode || Number(error?.code || error?.status || error?.response?.status || error?.cause?.code) || (/not configured/i.test(error.message) ? 503 : 500);
+        const apiMessage = error?.response?.data?.error?.message || error?.cause?.message || error?.message || 'Unknown error';
+
+        if (statusCode === 401) {
+            return res.status(401).json({ message: `Google authentication failed: ${apiMessage}` });
+        }
+
+        if (statusCode === 403) {
+            return res.status(403).json({
+                message: `Google API permission denied: ${apiMessage}. Share the spreadsheet with the service account as Editor.`,
+                service_account_email: googleSheetsStatus.serviceAccountEmail || null
+            });
+        }
+
+        return res.status(statusCode).json({ message: `Backup to Google Sheets failed: ${apiMessage}` });
     }
 };
 

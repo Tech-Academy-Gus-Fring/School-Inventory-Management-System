@@ -180,6 +180,21 @@ const DashboardPage: React.FC = () => {
   const isAdmin = user?.role === 'admin';
   const isTeacher = user?.role === 'teacher';
   const isManager = isAdmin || isTeacher;
+  const roleBadgeConfig = {
+    admin: {
+      label: 'Admin Dashboard',
+      className: 'border-[#0066cc]/40 bg-[#0066cc]/10 text-[#0066cc] dark:border-[#7aa8ff]/40 dark:bg-[#7aa8ff]/10 dark:text-[#9fc0ff]'
+    },
+    teacher: {
+      label: 'Teacher Dashboard',
+      className: 'border-[#0f6abd]/40 bg-[#0f6abd]/10 text-[#0f6abd] dark:border-[#63b3ff]/40 dark:bg-[#63b3ff]/10 dark:text-[#99cbff]'
+    },
+    student: {
+      label: 'Student Dashboard',
+      className: 'border-emerald-600/40 bg-emerald-600/10 text-emerald-700 dark:border-emerald-400/40 dark:bg-emerald-400/10 dark:text-emerald-300'
+    }
+  } as const;
+  const currentRoleBadge = user?.role ? roleBadgeConfig[user.role] : null;
 
   const showError = (text: string) => {
     setError(text);
@@ -1381,9 +1396,9 @@ const DashboardPage: React.FC = () => {
               </h1>
               <p className="text-xs sm:text-base text-slate-500 font-medium pb-2 border-b border-[#d2d2d7] dark:border-[#303030]">
                 Welcome, <span className="text-[#1d1d1f] dark:text-[#f5f5f7] font-bold">{user?.username}</span>
-                {user?.role === 'admin' && (
-                  <span className="ml-2 inline-flex items-center rounded-full border border-[#0066cc]/40 bg-[#0066cc]/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-[#0066cc] dark:border-[#7aa8ff]/40 dark:bg-[#7aa8ff]/10 dark:text-[#9fc0ff]">
-                    Admin Dashboard
+                {currentRoleBadge && (
+                  <span className={`ml-2 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-black uppercase tracking-wide ${currentRoleBadge.className}`}>
+                    {currentRoleBadge.label}
                   </span>
                 )}
               </p>

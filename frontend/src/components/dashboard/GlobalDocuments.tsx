@@ -68,32 +68,33 @@ export const GlobalDocuments: React.FC<Props> = ({ token, isAdmin }) => {
         {isAdmin && (
           <Button 
             onClick={() => setIsUploadModalOpen(true)}
-            className="bg-[#0066cc] text-white hover:bg-blue-700 dark:hover:bg-blue-600 px-5 h-11 text-[11px] font-bold tracking-wide normal-case whitespace-nowrap flex items-center gap-2 rounded-[12px] shadow-sm active:scale-95 transition-all"
+            title="Upload document"
+            aria-label="Upload document"
+            className="group h-11 w-11 min-w-[44px] rounded-[14px] border border-[#d2d2d7]/75 dark:border-[#3a3a3c]/85 bg-white/35 dark:bg-white/[0.06] backdrop-blur-md text-[#1d1d1f] dark:text-[#f5f5f7] hover:bg-white/55 dark:hover:bg-white/[0.11] hover:border-[#0066cc]/50 dark:hover:border-[#7aa8ff]/45 hover:text-[#0066cc] dark:hover:text-[#9fc0ff] shadow-[0_6px_18px_rgba(0,0,0,0.08)] dark:shadow-[0_8px_22px_rgba(0,0,0,0.35)] active:scale-95 transition-all flex items-center justify-center"
           >
-            <FilePlus size={15} className="shrink-0" />
-            <span className="leading-none">Upload document</span>
+            <FilePlus size={17} className="shrink-0 transition-transform group-hover:scale-110" />
           </Button>
         )}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+      <div className="space-y-3">
+        <div className="relative w-full">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#86868b]" />
           <input 
             type="text"
             placeholder="Search documents..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#1c1c1e] border border-[#d2d2d7] dark:border-[#303030] rounded-xl text-xs focus:ring-2 focus:ring-[#0066cc]/20 outline-none transition-all"
+            className="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#1c1c1e] border border-[#d2d2d7] dark:border-[#303030] rounded-xl text-xs text-[#1d1d1f] dark:text-[#f5f5f7] placeholder:text-[#86868b] focus:ring-2 focus:ring-[#0066cc]/20 outline-none transition-all"
           />
         </div>
         
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <div className="grid grid-cols-4 gap-2">
           {categories.map(cat => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border ${
+              className={`w-full px-2 py-1.5 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-wide text-center whitespace-nowrap transition-all border ${
                 selectedCategory === cat 
                   ? 'bg-[#0066cc] border-[#0066cc] text-white shadow-md' 
                   : 'bg-white dark:bg-[#1c1c1e] border-[#d2d2d7] dark:border-[#303030] text-[#86868b] hover:border-[#86868b]'

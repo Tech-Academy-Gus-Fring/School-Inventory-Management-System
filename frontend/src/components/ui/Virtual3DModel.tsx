@@ -15,6 +15,7 @@ export const Virtual3DModel: React.FC<Props> = ({
   isActive = true
 }) => {
   const normalizedType = type.toLowerCase();
+  const isLaptopLike = normalizedType.includes('laptop') || normalizedType.includes('macbook');
 
   const colors = useMemo(() => {
     if (normalizedType.includes('laptop') || normalizedType.includes('macbook')) {
@@ -152,6 +153,14 @@ export const Virtual3DModel: React.FC<Props> = ({
   };
 
   const renderStack = () => {
+    if (isExpanded) {
+      return (
+        <div className="absolute inset-0 flex items-center justify-center p-4">
+          {renderModel()}
+        </div>
+      );
+    }
+
     if (!isActive && !isExpanded) {
       return (
         <div className="absolute inset-0 flex items-center justify-center p-4">
@@ -160,7 +169,7 @@ export const Virtual3DModel: React.FC<Props> = ({
       );
     }
 
-    const displayCount = Math.min(quantity || 1, isExpanded ? 5 : 3);
+    const displayCount = isLaptopLike ? 1 : Math.min(quantity || 1, 3);
     const stack = [];
 
     for (let i = 0; i < displayCount; i++) {

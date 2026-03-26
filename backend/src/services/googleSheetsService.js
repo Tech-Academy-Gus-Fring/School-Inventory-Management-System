@@ -1,8 +1,59 @@
 const { google } = require('googleapis');
+const fs = require('fs');
+
+const normalizePrivateKey = (key) => (key ? key.replace(/\\n/g, '\n') : '');
+
+const readServiceAccountFromEnv = () => {
+  const jsonEnv =
+    process.env.GOOGLE_SERVICE_ACCOUNT_JSON ||
+    process.env.GOOGLE_SHEETS_SERVICE_ACCOUNT_JSON ||
+    '';
+
+  if (jsonEnv) {
+    const raw = jsonEnv.trim().replace(/^"|"$/g, '');
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed.client_email && parsed.private_key) {
+        return {
+          clientEmail: parsed.client_email,
+          privateKey: normalizePrivateKey(parsed.private_key)
+        };
+      }
+    } catch (_error) {
+      if (fs.existsSync(raw)) {
+        const fileContent = fs.readFileSync(raw, 'utf8');
+        const parsedFile = JSON.parse(fileContent);
+        if (parsedFile.client_email && parsedFile.private_key) {
+          return {
+            clientEmail: parsedFile.client_email,
+            privateKey: normalizePrivateKey(parsedFile.private_key)
+          };
+        }
+      }
+    }
+  }
+
+  const clientEmail =
+    process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL ||
+    process.env.GOOGLE_SHEETS_SERVICE_ACCOUNT_EMAIL ||
+    '';
+  const privateKey = normalizePrivateKey(
+    process.env.GOOGLE_PRIVATE_KEY ||
+    process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ||
+    process.env.GOOGLE_SHEETS_SERVICE_ACCOUNT_PRIVATE_KEY ||
+    ''
+  );
+
+  if (clientEmail && privateKey) {
+    return { clientEmail, privateKey };
+  }
+
+  return { clientEmail: '', privateKey: '' };
+};
 
 const createBackupSheet = async (ownerEmail, inventoryData, historyData) => {
-  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY ? process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n') : '';
+  const { clientEmail, privateKey } = readServiceAccountFromEnv();
 
   if (!clientEmail || !privateKey) {
     console.warn("Google Sheets credentials are not configured. Returning mock success.");
@@ -14,12 +65,11 @@ const createBackupSheet = async (ownerEmail, inventoryData, historyData) => {
   }
 
   try {
-    const auth = new google.auth.JWT(
-      clientEmail,
-      null,
-      privateKey,
-      ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-    );
+    const auth = new google.auth.JWT({
+      email: clientEmail,
+      key: privateKey,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+    });
 
     const sheets = google.sheets({ version: 'v4', auth });
     const drive = google.drive({ version: 'v3', auth });
