@@ -11,12 +11,14 @@ interface Props {
 
 export const BarcodeScannerModal: React.FC<Props> = ({ isOpen, onClose, onDetected }) => {
   const scannerRef = useRef<HTMLDivElement>(null);
+  const hasDetectedRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     if (!isOpen || !scannerRef.current) return;
 
+    hasDetectedRef.current = false;
     setIsInitializing(true);
     setError(null);
 
@@ -64,17 +66,21 @@ export const BarcodeScannerModal: React.FC<Props> = ({ isOpen, onClose, onDetect
       }
     );
 
-    Quagga.onDetected((data: { codeResult?: { code?: string } }) => {
-      const code = data?.codeResult?.code;
-      if (code) {
+    const handleDetected = (data: { codeResult?: { code?: string } }) => {
+      const code = data?.codeResult?.code?.trim();
+      if (code && !hasDetectedRef.current) {
+        hasDetectedRef.current = true;
         onDetected(code);
         onClose();
       }
-    });
+    };
+
+    Quagga.onDetected(handleDetected);
 
     return () => {
+      hasDetectedRef.current = false;
+      Quagga.offDetected(handleDetected);
       Quagga.stop();
-      Quagga.offDetected();
     };
   }, [isOpen, onDetected, onClose]);
 

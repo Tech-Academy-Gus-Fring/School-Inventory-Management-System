@@ -48,12 +48,15 @@ import { Virtual3DModel } from '@/components/ui/Virtual3DModel';
 import { DashboardActionModal } from '@/components/ui/DashboardActionModal';
 import { FloorPlanMap } from '@/components/spatial/FloorPlanMap';
 import { motion, AnimatePresence } from 'framer-motion';
+import { parseInventoryBarcodeValue } from '@/utils/barcode';
 
 interface GroupedEquipment extends Equipment {
   totalQuantity: number;
   availableQuantity: number;
   all_items: Equipment[];
 }
+
+type ManagementTab = 'spatial' | 'approvals' | 'system' | 'reports' | 'storage' | 'notifications';
 
 const fallbackUsageData = [
   { name: 'Microscope Demo', borrowCount: 15 },
@@ -101,6 +104,64 @@ const buildItemQrValue = (item: Partial<Equipment> & { id?: number; room?: { nam
   return `https://www.google.com/search?udm=50&q=${encodeURIComponent(query)}`;
 };
 
+const normalizeSearchValue = (value: string | null | undefined) => value?.trim().toLowerCase() ?? '';
+
+const hasUsableSerialNumber = (value: string | null | undefined) => {
+  const normalized = normalizeSearchValue(value);
+  return normalized.length > 0 && normalized !== 'n/a';
+};
+
+const getPreferredSerialNumber = (
+  item: (Partial<Equipment> & { all_items?: Equipment[] }) | null | undefined,
+  preferredSerial?: string | null,
+) => {
+  if (hasUsableSerialNumber(preferredSerial)) {
+    return preferredSerial!.trim();
+  }
+
+  if (hasUsableSerialNumber(item?.serial_number)) {
+    return item!.serial_number!.trim();
+  }
+
+  const nestedSerial = item?.all_items?.find(candidate => hasUsableSerialNumber(candidate.serial_number))?.serial_number;
+  return nestedSerial?.trim() ?? null;
+};
+
+const matchesEquipmentSearch = (item: Equipment, term: string) => {
+  const normalizedTerm = normalizeSearchValue(term);
+
+  if (!normalizedTerm) {
+    return true;
+  }
+
+  return [
+    item.name,
+    item.type,
+    item.serial_number,
+    item.location,
+    item.room?.name,
+  ].some(value => normalizeSearchValue(value).includes(normalizedTerm));
+};
+
+const findEquipmentMatchFromScan = (items: GroupedEquipment[], scannedCode: string) => {
+  const parsed = parseInventoryBarcodeValue(scannedCode);
+  const normalizedSerial = normalizeSearchValue(parsed.serial);
+  const normalizedName = normalizeSearchValue(parsed.name);
+
+  const match = items.find(item =>
+    (normalizedSerial.length > 0 && (
+      normalizeSearchValue(item.serial_number) === normalizedSerial
+      || item.all_items.some(candidate => normalizeSearchValue(candidate.serial_number) === normalizedSerial)
+    ))
+    || (normalizedName.length > 0 && normalizeSearchValue(item.name) === normalizedName)
+  );
+
+  return {
+    match,
+    parsed,
+  };
+};
+
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, token, isAuthenticated, logout } = useAuthStore();
@@ -132,7 +193,7 @@ const DashboardPage: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showAllUnits, setShowAllUnits] = useState(false);
-  const [mgmtTab, setMgmtTab] = useState<'spatial' | 'approvals' | 'system' | 'reports' | 'storage' | 'notifications'>('spatial');
+  const [mgmtTab, setMgmtTab] = useState<ManagementTab>('spatial');
   const [reportData, setReportData] = useState<{ usage: any[]; history: any[] }>({ usage: [], history: [] });
   const [systemSubTab, setSystemSubTab] = useState<'assets' | 'users' | 'directory' | 'vault'>('assets');
 
@@ -160,6 +221,7 @@ const DashboardPage: React.FC = () => {
   const [showClaimPreview, setShowClaimPreview] = useState(false);
   const [showRegisterPreview, setShowRegisterPreview] = useState(false);
   const [conditionHistoryOpen, setConditionHistoryOpen] = useState<{ id: number; name: string } | null>(null);
+  const [selectedItemSerial, setSelectedItemSerial] = useState<string | null>(null);
 
   const [newPhotoUrls, setNewPhotoUrls] = useState<string[]>([]);
   const [editPhotoUrls, setEditPhotoUrls] = useState<string[]>([]);
@@ -180,6 +242,14 @@ const DashboardPage: React.FC = () => {
   const isAdmin = user?.role === 'admin';
   const isTeacher = user?.role === 'teacher';
   const isManager = isAdmin || isTeacher;
+  const managementTabs: Array<{ id: ManagementTab; label: string }> = [
+    { id: 'spatial', label: 'Spatial' },
+    { id: 'approvals', label: 'Approvals' },
+    { id: 'storage', label: 'Storage' },
+    { id: 'reports', label: 'Reports' },
+    { id: 'notifications', label: 'Alerts' },
+    ...(isAdmin ? [{ id: 'system' as const, label: 'Global' }] : []),
+  ];
   const roleBadgeConfig = {
     admin: {
       label: 'Admin Dashboard',
@@ -204,6 +274,16 @@ const DashboardPage: React.FC = () => {
   const showMessage = (text: string) => {
     setMessage(text);
     setTimeout(() => setMessage(null), 3000);
+  };
+
+  const openSelectedItem = (item: GroupedEquipment, preferredSerial?: string | null) => {
+    setSelectedItem(item);
+    setSelectedItemSerial(getPreferredSerialNumber(item, preferredSerial));
+  };
+
+  const closeSelectedItem = () => {
+    setSelectedItem(null);
+    setSelectedItemSerial(null);
   };
 
   useEffect(() => {
@@ -563,7 +643,7 @@ const DashboardPage: React.FC = () => {
     }, {});
 
     const filteredEquipment = equipment.filter(e => {
-      const matchesSearch = e.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = matchesEquipmentSearch(e, searchTerm);
 
       if (selectedRoomId) {
         return matchesSearch && Number(e.room_id) === Number(selectedRoomId);
@@ -618,7 +698,10 @@ const DashboardPage: React.FC = () => {
     });
 
     return Object.values(groups) as GroupedEquipment[];
-  }, [equipment, requests, selectedRoomId, showAllUnits, floors, currentFloorId, searchTerm]);
+  }, [equipment, requests, selectedRoomId, showAllUnits, floors, currentFloorId, searchTerm, mgmtTab, isTeacher, teacherRoomIds]);
+
+  const selectedItemBarcodeSerial = getPreferredSerialNumber(selectedItem, selectedItemSerial);
+  const canGenerateBarcode = Boolean(selectedItemBarcodeSerial);
 
   const usageChartData = reportData.usage.length > 0 ? reportData.usage : fallbackUsageData;
 
@@ -741,25 +824,32 @@ const DashboardPage: React.FC = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white">Management</h2>
         </div>
-        <div className="flex bg-[#f5f5f7] dark:bg-[#1d1d1f] p-1 rounded-xl border border-[#d2d2d7] dark:border-[#303030] shrink-0">
+        <div className="grid grid-cols-1 gap-1 rounded-xl border border-[#d2d2d7] bg-[#f5f5f7] p-1 dark:border-[#303030] dark:bg-[#1d1d1f] sm:grid-cols-3 shrink-0">
           <button onClick={() => { setViewMode('3d'); setShowAllUnits(false); }} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${viewMode === '3d' && !showAllUnits ? 'bg-white dark:bg-[#303030] shadow-sm text-[#1d1d1f] dark:text-[#f5f5f7]' : 'text-[#86868b]'}`}>{isTeacher ? 'My Rooms' : '3D View'}</button>
           <button onClick={() => { setViewMode('3d'); setShowAllUnits(true); }} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${viewMode === '3d' && showAllUnits ? 'bg-white dark:bg-[#303030] shadow-sm text-[#1d1d1f] dark:text-[#f5f5f7]' : 'text-[#86868b]'}`}>See All</button>
           <button onClick={() => setViewMode('map')} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${viewMode === 'map' ? 'bg-white dark:bg-[#303030] shadow-sm text-[#1d1d1f] dark:text-[#f5f5f7]' : 'text-[#86868b]'}`}>Map View</button>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-1 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
           <StatPill icon={<Package size={16} />} label="Available gear" value={groupedEquipment.reduce((acc, g) => acc + (g.availableQuantity || 0), 0)} color="bg-emerald-500" />
           <StatPill icon={<History size={16} />} label="My requests" value={requests?.length || 0} color="bg-blue-500" />
           <StatPill icon={<CalendarClock size={16} />} label="Queue status" value={requests ? requests.filter(r => r.status === 'pending').length : 0} color="bg-amber-500" />
         </div>
 
-        <div className="flex flex-wrap gap-2 p-2 bg-[#f5f5f7] dark:bg-[#1d1d1f] rounded-2xl border border-[#d2d2d7] dark:border-[#303030] shadow-sm mb-4">
-          <button onClick={() => setMgmtTab('spatial')} className={`flex-1 min-w-[75px] py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${mgmtTab === 'spatial' ? 'bg-white dark:bg-[#303030] shadow-md text-[#0066cc]' : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white'}`}>Spatial</button>
-          <button onClick={() => setMgmtTab('approvals')} className={`flex-1 min-w-[75px] py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${mgmtTab === 'approvals' ? 'bg-white dark:bg-[#303030] shadow-md text-[#0066cc]' : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white'}`}>Approvals</button>
-          <button onClick={() => setMgmtTab('storage')} className={`flex-1 min-w-[75px] py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${mgmtTab === 'storage' ? 'bg-white dark:bg-[#303030] shadow-md text-[#0066cc]' : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white'}`}>Storage</button>
-          <button onClick={() => setMgmtTab('reports')} className={`flex-1 min-w-[75px] py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${mgmtTab === 'reports' ? 'bg-white dark:bg-[#303030] shadow-md text-[#0066cc]' : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white'}`}>Reports</button>
-          <button onClick={() => setMgmtTab('notifications')} className={`flex-1 min-w-[75px] py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${mgmtTab === 'notifications' ? 'bg-white dark:bg-[#303030] shadow-md text-[#0066cc]' : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white'}`}>Alerts</button>
-          {isAdmin && <button onClick={() => setMgmtTab('system')} className={`flex-1 min-w-[75px] py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${mgmtTab === 'system' ? 'bg-white dark:bg-[#303030] shadow-md text-[#0066cc]' : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white'}`}>Global</button>}
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(108px,1fr))] gap-2 rounded-2xl border border-[#d2d2d7] bg-[#f5f5f7] p-2 shadow-sm dark:border-[#303030] dark:bg-[#1d1d1f]">
+          {managementTabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setMgmtTab(tab.id)}
+              className={`min-h-[46px] rounded-xl px-3 py-2 text-center text-[8px] font-black uppercase tracking-[0.18em] transition-all sm:text-[9px] sm:tracking-[0.22em] ${
+                mgmtTab === tab.id
+                  ? 'bg-white text-[#0066cc] shadow-md dark:bg-[#303030]'
+                  : 'text-[#86868b] hover:bg-white/70 hover:text-[#1d1d1f] dark:hover:bg-[#2a2a2d] dark:hover:text-white'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -1001,7 +1091,7 @@ const DashboardPage: React.FC = () => {
 
         {mgmtTab === 'system' && isAdmin && (
           <div className="space-y-6 pb-12">
-            <div className="flex p-1 bg-[#f5f5f7] dark:bg-[#1d1d1f] rounded-xl border border-[#d2d2d7] dark:border-[#303030] mb-4">
+            <div className="grid grid-cols-2 gap-1 rounded-xl border border-[#d2d2d7] bg-[#f5f5f7] p-1 dark:border-[#303030] dark:bg-[#1d1d1f] mb-4 sm:grid-cols-4">
               <button onClick={() => setSystemSubTab('assets')} className={`flex-1 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${systemSubTab === 'assets' ? 'bg-white dark:bg-[#303030] shadow-sm text-[#0066cc]' : 'text-[#86868b]'}`}>Assets</button>
               <button onClick={() => setSystemSubTab('users')} className={`flex-1 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${systemSubTab === 'users' ? 'bg-white dark:bg-[#303030] shadow-sm text-[#0066cc]' : 'text-[#86868b]'}`}>Users</button>
               <button onClick={() => setSystemSubTab('directory')} className={`flex-1 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${systemSubTab === 'directory' ? 'bg-white dark:bg-[#303030] shadow-sm text-[#0066cc]' : 'text-[#86868b]'}`}>Users List</button>
@@ -1059,7 +1149,7 @@ const DashboardPage: React.FC = () => {
                   </div>
                   <div className="space-y-2">
                     <p className="text-[9px] font-black uppercase text-[#86868b] ml-1">UI Model</p>
-                    <div className="grid grid-cols-4 gap-2">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                       {VECTOR_UI_OPTIONS.map(opt => (
                         <button
                           key={opt.id}
@@ -1162,7 +1252,7 @@ const DashboardPage: React.FC = () => {
 
             {systemSubTab === 'directory' && (
               <section className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-[10px] uppercase font-black tracking-widest text-[#86868b]">Global Directory</p>
                   <div className="flex gap-4 relative">
                     <button onClick={() => setMgmSearch('')} className={`text-[9px] uppercase font-black tracking-widest transition-all ${mgmSearch === '' ? 'text-[#0066cc]' : 'text-[#86868b] hover:text-[#1d1d1f] dark:hover:text-white'}`}>Users</button>
@@ -1254,7 +1344,7 @@ const DashboardPage: React.FC = () => {
 
         {mgmtTab === 'reports' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-[10px] uppercase font-black tracking-widest text-[#86868b]">Usage Analytics</p>
               <button
                 onClick={() => {
@@ -1304,9 +1394,9 @@ const DashboardPage: React.FC = () => {
             </div>
 
             <div className="space-y-4 pt-4 border-t border-[#f5f5f7] dark:border-[#303030]">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-[10px] uppercase font-black tracking-widest text-[#86868b]">Full System Logs</p>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <button onClick={onDownloadCSV} className="text-[9px] font-black uppercase text-[#0066cc] hover:underline whitespace-nowrap">CSV Export</button>
                   <button onClick={onExportToSheets} disabled={isExportingSheets} className="flex items-center gap-1 text-[9px] font-black uppercase text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 disabled:opacity-50 transition-colors whitespace-nowrap">
                     {isExportingSheets ? <Loader2 size={12} className="animate-spin" /> : <FileSpreadsheet size={12} />} Sheets Backup
@@ -1343,10 +1433,10 @@ const DashboardPage: React.FC = () => {
   );
 
   const UserOverviewPanel = (
-    <div className="h-full flex flex-col p-6 gap-8">
+    <div className="h-full flex flex-col gap-6 p-4 sm:gap-8 sm:p-6">
       <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2 underline decoration-[#0066cc] decoration-4 underline-offset-8">My Space</h2>
 
-      <div className="flex bg-[#f5f5f7] dark:bg-[#1d1d1f] p-1 rounded-xl border border-[#d2d2d7] dark:border-[#303030] shrink-0">
+      <div className="grid grid-cols-1 gap-1 rounded-xl border border-[#d2d2d7] bg-[#f5f5f7] p-1 dark:border-[#303030] dark:bg-[#1d1d1f] shrink-0 sm:grid-cols-2">
         <button onClick={() => setViewMode('3d')} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${viewMode === '3d' ? 'bg-white dark:bg-[#303030] shadow-sm text-[#1d1d1f] dark:text-[#f5f5f7]' : 'text-[#86868b]'}`}>3D View</button>
         <button onClick={() => setViewMode('map')} className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${viewMode === 'map' ? 'bg-white dark:bg-[#303030] shadow-sm text-[#1d1d1f] dark:text-[#f5f5f7]' : 'text-[#86868b]'}`}>Map View</button>
       </div>
@@ -1429,8 +1519,8 @@ const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mb-2 px-2 shrink-0">
-            <div className="flex items-center gap-2">
+          <div className="mb-2 flex shrink-0 flex-col gap-2 px-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">
                 {showAllUnits ? 'Global School Assets' : `${currentFloor?.name || 'Current'} Floor Inventory`}
               </h2>
@@ -1462,7 +1552,7 @@ const DashboardPage: React.FC = () => {
                   ) : groupedEquipment.length === 0 ? (
                     <div className="flex-1 flex flex-col items-center justify-center opacity-40"><Package size={80} className="mb-4" /><p className="text-xl font-bold">No gear in this orbit.</p></div>
                   ) : (
-                    <ParallaxCarousel items={groupedEquipment} onExpand={item => setSelectedItem(item as GroupedEquipment)} />
+                    <ParallaxCarousel items={groupedEquipment} onExpand={item => openSelectedItem(item as GroupedEquipment)} />
                   )}
                 </motion.div>
               ) : (
@@ -1621,9 +1711,9 @@ const DashboardPage: React.FC = () => {
         <AnimatePresence>
           {selectedItem && (
             <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 md:p-8 lg:p-20">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedItem(null)} className="fixed inset-0 bg-black/80 backdrop-blur-xl" />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeSelectedItem} className="fixed inset-0 bg-black/80 backdrop-blur-xl" />
               <motion.div layoutId={`card-${selectedItem.id}`} initial={{ scale: 0.9, opacity: 0, y: 40 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 40 }} className="relative w-full max-w-5xl bg-white dark:bg-[#1d1d1f] sm:rounded-[32px] rounded-t-[32px] shadow-2xl overflow-hidden flex flex-col md:flex-row border border-[#d2d2d7] dark:border-[#303030] max-h-[95vh] sm:max-h-[90vh]">
-                <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><X size={24} /></button>
+                <button onClick={closeSelectedItem} className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"><X size={24} /></button>
                 <div className="hidden md:flex w-full md:w-1/2 bg-[#f5f5f7] dark:bg-black p-12 items-center justify-center"><Virtual3DModel type={selectedItem.type} quantity={selectedItem.totalQuantity || 1} isExpanded /></div>
                 <div className="w-full md:w-1/2 p-6 sm:p-10 md:p-12 flex flex-col overflow-y-auto max-h-[90vh] md:max-h-full">
                   <p className="text-[10px] font-black uppercase tracking-[0.5em] text-[#86868b] mb-4">Specifications</p>
@@ -1667,8 +1757,8 @@ const DashboardPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-8 mb-8">
-                    <div><p className="text-[9px] uppercase font-bold text-[#86868b] mb-1">Asset ID</p><p className="font-mono text-sm">{selectedItem.serial_number || 'N/A'}</p></div>
+                  <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-8">
+                    <div><p className="text-[9px] uppercase font-bold text-[#86868b] mb-1">Asset ID</p><p className="font-mono text-sm">{selectedItemBarcodeSerial || 'N/A'}</p></div>
                     <div><p className="text-[9px] uppercase font-bold text-[#86868b] mb-1">Real Location</p><p className="text-sm font-black text-[#0066cc] uppercase tracking-wider">{(selectedItem as any).rooms?.length > 0 ? (selectedItem as any).rooms.join(', ') : selectedItem.room?.name || 'Unassigned Lobby'}</p></div>
                     <div><p className="text-[9px] uppercase font-bold text-[#86868b] mb-1">Status</p><p className="text-sm uppercase font-black">{selectedItem.status}</p></div>
                     <div><p className="text-[9px] uppercase font-bold text-[#86868b] mb-1">Availability</p><p className="text-sm font-bold">{selectedItemAvailability ? `${selectedItemAvailability.available} / ${selectedItemAvailability.total}` : `${selectedItem.availableQuantity} / ${selectedItem.totalQuantity}`}</p></div>
@@ -1684,10 +1774,23 @@ const DashboardPage: React.FC = () => {
                     </button>
                   </div>
 
-                    <div className="flex gap-2 mb-4">
+                    <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                       <button
-                        onClick={() => setBarcodeModal({ name: selectedItem.name, serial: selectedItem.serial_number || 'N/A' })}
-                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#1d1d1f] dark:bg-[#f5f5f7] text-white dark:text-[#1d1d1f] text-[10px] font-black uppercase tracking-widest hover:opacity-90 hover:shadow-xl hover:-translate-y-0.5 transition-all shadow-lg active:scale-95"
+                        onClick={() => {
+                          if (!selectedItemBarcodeSerial) {
+                            showError('Add a serial number before generating a barcode label.');
+                            return;
+                          }
+
+                          setBarcodeModal({ name: selectedItem.name, serial: selectedItemBarcodeSerial });
+                        }}
+                        disabled={!canGenerateBarcode}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 ${
+                          canGenerateBarcode
+                            ? 'bg-[#1d1d1f] dark:bg-[#f5f5f7] text-white dark:text-[#1d1d1f] hover:opacity-90 hover:shadow-xl hover:-translate-y-0.5 shadow-lg'
+                            : 'bg-[#d2d2d7] dark:bg-[#303030] text-[#86868b] cursor-not-allowed shadow-none'
+                        }`}
+                        title={canGenerateBarcode ? 'Open barcode label' : 'This item needs a serial number first'}
                       >
                         <LayoutPanelLeft size={14} /> Barcode
                       </button>
@@ -1710,7 +1813,7 @@ const DashboardPage: React.FC = () => {
                             <p className="text-xs font-bold mt-1">You are requesting 1 unit of "{selectedItem.name}" for 7 days.</p>
                           </div>
                         </div>
-                        <div className="flex gap-2 pt-2">
+                        <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row">
                            <Button 
                              variant="secondary"
                              className="flex-1 py-4"
@@ -1724,10 +1827,10 @@ const DashboardPage: React.FC = () => {
                              onClick={async () => {
                                if (!selectedItem) return;
                                const submitted = await onQuickBorrow(selectedItem.id);
-                               if (submitted) {
-                                  setSelectedItem(null);
-                                  setShowClaimPreview(false);
-                               }
+                                if (submitted) {
+                                   closeSelectedItem();
+                                   setShowClaimPreview(false);
+                                }
                              }}
                            >
                              Confirm & Submit
@@ -1780,11 +1883,20 @@ const DashboardPage: React.FC = () => {
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
         onDetected={(code) => {
-          setSearchTerm(code);
-          showMessage(`Scanned: ${code}`);
-          const match = groupedEquipment.find(e =>  e.serial_number === code || e.all_items.some(i => i.serial_number === code));
+          const { match, parsed } = findEquipmentMatchFromScan(groupedEquipment, code);
+          const searchableValue = parsed.serial || parsed.name || code;
+
+          setSearchTerm(searchableValue);
+          showMessage(
+            parsed.name && parsed.serial
+              ? `Scanned: ${parsed.name} (${parsed.serial})`
+              : `Scanned: ${searchableValue}`
+          );
+
           if (match) {
-            setSelectedItem(match);
+            openSelectedItem(match, parsed.serial || code);
+          } else {
+            showError(`No equipment found for barcode ${searchableValue}.`);
           }
         }}
       />
@@ -1806,7 +1918,7 @@ const DashboardPage: React.FC = () => {
                  <QRCode value={buildItemQrValue(selectedItem as any)} size={200} />
               </div>
               <h4 className="font-bold text-center mb-1">{selectedItem.name}</h4>
-              <p className="text-[10px] font-mono text-[#86868b] mb-6 uppercase">{selectedItem.serial_number || 'NO_SERIAL'}</p>
+              <p className="text-[10px] font-mono text-[#86868b] mb-6 uppercase">{selectedItemBarcodeSerial || 'NO_SERIAL'}</p>
               <Button className="w-full py-4 bg-[#1d1d1f] dark:bg-[#f5f5f7] text-white dark:text-[#1d1d1f] rounded-xl font-black text-[9px] uppercase tracking-widest" onClick={() => window.print()}>Print Label</Button>
            </motion.div>
         </div>
@@ -1842,7 +1954,7 @@ const DashboardPage: React.FC = () => {
 
               <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase text-[#86868b] tracking-widest ml-1">UI Model</p>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {VECTOR_UI_OPTIONS.map(opt => (
                     <button
                       key={opt.id}
@@ -1895,7 +2007,7 @@ const DashboardPage: React.FC = () => {
                 </select>
               </div>
             </div>
-            <div className="flex gap-3 pt-5 mt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="mt-4 flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 dark:border-slate-800 sm:flex-row">
               <Button className="flex-1" variant="secondary" onClick={() => setEditEquipmentModal(null)}>Cancel</Button>
               <Button className="flex-1" onClick={handleEditEquipmentSubmit} icon={<CheckCircle2 className="w-4 h-4" />}>Save Changes</Button>
             </div>
@@ -1984,7 +2096,7 @@ const DashboardPage: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className="flex gap-3 pt-5 mt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="mt-4 flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 dark:border-slate-800 sm:flex-row">
               <Button className="flex-1" variant="secondary" onClick={() => setEditUserModal(null)}>Cancel</Button>
               <Button className="flex-1" onClick={handleEditUserSubmit} icon={<CheckCircle2 className="w-4 h-4" />}>Save User</Button>
             </div>

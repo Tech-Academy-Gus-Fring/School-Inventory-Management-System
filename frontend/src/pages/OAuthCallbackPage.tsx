@@ -23,6 +23,12 @@ const OAuthCallbackPage: React.FC<OAuthCallbackPageProps> = ({ provider }) => {
 
       try {
         if (provider === 'google') {
+          const oauthError = searchParams.get('error');
+          const oauthErrorDescription = searchParams.get('error_description');
+          if (oauthError) {
+            throw new Error(oauthErrorDescription || oauthError);
+          }
+
           const code = searchParams.get('code');
           if (!code) {
             throw new Error('Google authorization code is missing.');

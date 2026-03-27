@@ -13,6 +13,19 @@ const {
 const {validationResult} = require('express-validator');
 const xss = require('xss');
 
+const getFrontendCallbackUrl = (callbackPath, params = {}) => {
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').trim().replace(/\/+$/, '');
+    const url = new URL(callbackPath, `${frontendUrl}/`);
+
+    Object.entries(params).forEach(([key, value]) => {
+        if (typeof value === 'string' && value.trim()) {
+            url.searchParams.set(key, value);
+        }
+    });
+
+    return url.toString();
+};
+
 const register = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -112,6 +125,21 @@ const googleAuthUrl = async (req, res, next) => {
     }
 };
 
+const googleCallbackRedirect = async (req, res, next) => {
+    try {
+        const redirectUrl = getFrontendCallbackUrl('/auth/callback/google', {
+            code: typeof req.query.code === 'string' ? req.query.code : '',
+            state: typeof req.query.state === 'string' ? req.query.state : '',
+            error: typeof req.query.error === 'string' ? req.query.error : '',
+            error_description: typeof req.query.error_description === 'string' ? req.query.error_description : '',
+        });
+
+        return res.redirect(302, redirectUrl);
+    } catch (error) {
+        next(error);
+    }
+};
+
 const forgotPassword = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -203,6 +231,7 @@ module.exports = {
     refresh,
     logout,
     googleAuthUrl,
+    googleCallbackRedirect,
     googleExchange,
     telegramAuthUrl,
     telegramVerify,

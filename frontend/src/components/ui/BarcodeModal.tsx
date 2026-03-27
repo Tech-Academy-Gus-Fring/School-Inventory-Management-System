@@ -2,16 +2,21 @@ import React, { useRef } from 'react';
 import Barcode from 'react-barcode';
 import { X, Download, LayoutPanelLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { buildInventoryBarcodeValue } from '@/utils/barcode';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   equipmentName: string;
-  serialNumber: string;
+  serialNumber: string | null;
 }
 
 export const BarcodeModal: React.FC<Props> = ({ isOpen, onClose, equipmentName, serialNumber }) => {
   const barcodeRef = useRef<HTMLDivElement>(null);
+  const normalizedSerialNumber = serialNumber?.trim() ?? '';
+  const barcodeValue = normalizedSerialNumber
+    ? buildInventoryBarcodeValue(equipmentName, normalizedSerialNumber)
+    : '';
 
   const handleDownload = () => {
     if (!barcodeRef.current) return;
@@ -48,18 +53,18 @@ export const BarcodeModal: React.FC<Props> = ({ isOpen, onClose, equipmentName, 
       
       ctx.fillStyle = '#86868b';
       ctx.font = '14px system-ui, sans-serif';
-      ctx.fillText(`SN: ${serialNumber} | SIMS Inventory`, 300, 260);
+      ctx.fillText(`SN: ${normalizedSerialNumber} | SIMS Inventory`, 300, 260);
       
       URL.revokeObjectURL(url);
       const link = document.createElement('a');
-      link.download = `barcode-${serialNumber}.png`;
+      link.download = `barcode-${normalizedSerialNumber}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     };
     img.src = url;
   };
 
-  if (!serialNumber) return null;
+  if (!normalizedSerialNumber) return null;
 
   return (
     <AnimatePresence>
@@ -100,11 +105,11 @@ export const BarcodeModal: React.FC<Props> = ({ isOpen, onClose, equipmentName, 
 
             <div ref={barcodeRef} className="p-8 bg-white rounded-3xl shadow-lg border border-[#f5f5f7] flex items-center justify-center w-full overflow-hidden">
               <Barcode 
-                value={serialNumber} 
+                value={barcodeValue}
                 width={2}
                 height={100}
                 format="CODE128"
-                displayValue={true}
+                displayValue={false}
                 fontSize={14}
                 background="#ffffff"
                 lineColor="#1d1d1f"
@@ -113,6 +118,11 @@ export const BarcodeModal: React.FC<Props> = ({ isOpen, onClose, equipmentName, 
             </div>
 
             <div className="w-full space-y-3">
+              <div className="rounded-2xl bg-[#f5f5f7] dark:bg-[#2c2c2e] px-4 py-3 text-center">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#86868b]">Encoded Payload</p>
+                <p className="mt-1 text-sm font-semibold text-[#1d1d1f] dark:text-white">{equipmentName}</p>
+                <p className="mt-1 text-[10px] font-mono uppercase text-[#86868b]">SN: {normalizedSerialNumber}</p>
+              </div>
               <button
                 onClick={handleDownload}
                 className="w-full flex items-center justify-center gap-2 py-4 bg-[#1d1d1f] dark:bg-[#f5f5f7] text-white dark:text-[#1d1d1f] rounded-2xl font-black text-[10px] uppercase tracking-widest hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-black/10 dark:shadow-white/5"

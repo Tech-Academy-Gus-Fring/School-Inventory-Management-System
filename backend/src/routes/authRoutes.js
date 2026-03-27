@@ -5,6 +5,7 @@ const {
     refresh,
     logout,
     googleAuthUrl,
+    googleCallbackRedirect,
     googleExchange,
     telegramAuthUrl,
     telegramVerify,
@@ -75,6 +76,7 @@ router.post("/refresh", refresh);
 router.post("/logout", logout);
 router.get("/logout", logout);
 router.get("/google/url", googleAuthUrl);
+router.get("/google/callback", googleCallbackRedirect);
 router.post("/google/exchange", googleExchange);
 router.get("/telegram/url", telegramAuthUrl);
 router.post("/telegram/verify", telegramVerify);
